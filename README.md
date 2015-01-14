@@ -5,7 +5,7 @@
 ```javascript
 var Resolver = require('y-resolver'),
     res = new Resolver(),
-    yd = res.yielded();
+    yd = res.yielded;
 
 setTimeout(function(){
   res.accept('hi');
