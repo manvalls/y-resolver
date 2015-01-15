@@ -80,3 +80,18 @@ Object.defineProperties(Resolver.prototype,{
   
 });
 
+Resolver.accept = function(v){
+  var resolver = new Resolver();
+  
+  resolver.accept(v);
+  return resolver.yielded;
+};
+
+Resolver.reject = function(e){
+  var resolver = new Resolver();
+  
+  resolver.reject(e);
+  return resolver.yielded;
+};
+
+
