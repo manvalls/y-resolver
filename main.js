@@ -90,8 +90,10 @@ Resolver.accept = function(v){
 Resolver.reject = function(e){
   var resolver = new Resolver();
   
+  if(Resolver.debug) console.log(e?(e.stack?e:e.stack):e);
+  
   resolver.reject(e);
   return resolver.yielded;
 };
 
-
+Resolver.debug = global.process?global.process.env.debug == '':false;
