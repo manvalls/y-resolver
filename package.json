@@ -4,7 +4,7 @@
   "description": "An object which resolves yieldeds",
   "main": "main.js",
   "dependencies": {
-    "vz.rand": ""
+    "u-su": ""
   },
   "repository": {
     "type": "git",

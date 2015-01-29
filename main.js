@@ -1,4 +1,4 @@
-var Su = require('vz.rand').Su,
+var Su = require('u-su'),
     
     listeners = Su(),
     lArgs = Su(),
