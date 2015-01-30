@@ -29,6 +29,8 @@ Object.defineProperties(Yielded.prototype,{
     this[lArgs].push(args || []);
   }},
   
+  listeners: {get: function(){ return this[listeners].length; }},
+  
   done: {get: function(){ return this[done]; }},
   accepted: {get: function(){ return this[accepted]; }},
   rejected: {get: function(){ return this[rejected]; }},
@@ -40,9 +42,12 @@ Object.defineProperties(Yielded.prototype,{
 
 // Resolver
 
-module.exports = Resolver = function Resolver(){
-  Object.defineProperty(this,'yielded',{value: new Yielded()});
+module.exports = Resolver = function Resolver(Constructor){
+  Constructor = Constructor || Yielded;
+  Object.defineProperty(this,'yielded',{value: new Constructor()});
 };
+
+Resolver.Yielded = Yielded;
 
 Object.defineProperties(Resolver.prototype,{
   
