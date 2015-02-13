@@ -9,6 +9,8 @@ var Su = require('u-su'),
     value = Su(),
     error = Su(),
     
+    errorTimeout = Su(),
+    
     Resolver;
 
 // Yielded
@@ -32,15 +34,31 @@ Object.defineProperties(Yielded.prototype,{
   listeners: {get: function(){ return this[listeners].length; }},
   
   done: {get: function(){ return this[done]; }},
-  accepted: {get: function(){ return this[accepted]; }},
-  rejected: {get: function(){ return this[rejected]; }},
   
-  error: {get: function(){ return this[error]; }},
+  accepted: {get: function(){
+    clearTimeout(this[errorTimeout]);
+    return this[accepted];
+  }},
+  
+  rejected: {get: function(){
+    clearTimeout(this[errorTimeout]);
+    return this[rejected];
+  }},
+  
+  error: {get: function(){
+    clearTimeout(this[errorTimeout]);
+    return this[error];
+  }},
+  
   value: {get: function(){ return this[value]; }}
   
 });
 
 // Resolver
+
+function throwError(e){
+  throw e;
+}
 
 module.exports = Resolver = function Resolver(Constructor){
   Constructor = Constructor || Yielded;
@@ -55,6 +73,8 @@ Object.defineProperties(Resolver.prototype,{
     var i,cb,args;
     
     if(this.yielded.done) return;
+    
+    this.yielded[errorTimeout] = setTimeout(throwError,0,e);
     
     this.yielded[done] = true;
     this.yielded[rejected] = true;
@@ -95,10 +115,7 @@ Resolver.accept = function(v){
 Resolver.reject = function(e){
   var resolver = new Resolver();
   
-  if(Resolver.debug) console.log(e?(e.stack?e:e.stack):e);
-  
   resolver.reject(e);
   return resolver.yielded;
 };
 
-Resolver.debug = global.process?global.process.env.debug == '':false;
