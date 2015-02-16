@@ -82,6 +82,11 @@ Resolver.Yielded = Yielded = function Yielded(){
   this[accepted] = false;
 }
 
+function toPromiseCb(resolve,reject){
+  if(this[accepted]) resolve(this[value]);
+  else reject(this[error]);
+}
+
 Object.defineProperties(Yielded.prototype,{
   
   listen: {value: function(callback,args){
@@ -90,6 +95,20 @@ Object.defineProperties(Yielded.prototype,{
   }},
   
   listeners: {get: function(){ return this[listeners].length; }},
+  
+  toPromise: {value: function(){
+    var that = this;
+    
+    if(this[done]){
+      if(this[accepted]) return Promise.accept(this[value]);
+      return Promise.reject(this[error]);
+    }
+    
+    return new Promise(function(){
+      that.listen(toPromiseCb,arguments);
+    });
+    
+  }},
   
   done: {get: function(){ return this[done]; }},
   
