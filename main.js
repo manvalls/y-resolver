@@ -157,3 +157,12 @@ Resolver.reject = function(e){
   return resolver.yielded;
 };
 
+Resolver.chain = function(){
+  var last = arguments[arguments.length - 1][yielded],
+      i;
+  
+  arguments[arguments.length - 1][yielded] = arguments[0][yielded];
+  for(i = 0;i < arguments.length - 2;i++) arguments[i][yielded] = arguments[i + 1][yielded];
+  arguments[arguments.length - 2][yielded] = last;
+};
+
