@@ -9,6 +9,7 @@ var Su = require('u-su'),
     value = Su(),
     error = Su(),
     yielded = Su(),
+    inited = Su(),
     
     errorTimeout = Su(),
     
@@ -23,6 +24,7 @@ var Su = require('u-su'),
 module.exports = Resolver = function Resolver(Constructor){
   Constructor = Constructor || Yielded;
   this[yielded] = new Constructor();
+  this[yielded][inited] = true;
 };
 
 function throwError(e){
@@ -73,7 +75,15 @@ Object.defineProperties(Resolver.prototype,bag = {
 
 // Yielded
 
-Resolver.Yielded = Yielded = function Yielded(){
+Resolver.Yielded = Yielded = function Yielded(prop){
+  if(this[inited]) return;
+  
+  if(prop){
+    this[inited] = true;
+    this[prop] = Object.create(Resolver.prototype);
+    this[prop][yielded] = this;
+  }
+  
   this[listeners] = [];
   this[lArgs] = [];
   
