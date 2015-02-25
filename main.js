@@ -146,9 +146,13 @@ Object.defineProperties(Yielded.prototype,{
 Resolver.Hybrid = Hybrid = function Hybrid(){
   this[yielded] = this;
   Yielded.call(this);
+  
+  this[inited] = true;
 }
 
 Hybrid.prototype = new Yielded();
+Hybrid.prototype.constructor = Hybrid;
+
 Object.defineProperties(Hybrid.prototype,bag);
 
 // Auxiliar functions
