@@ -137,7 +137,9 @@ Object.defineProperties(Yielded.prototype,{
     return this[error];
   }},
   
-  value: {get: function(){ return this[value]; }}
+  value: {get: function(){ return this[value]; }},
+  
+  canBeWalked: {value: true}
   
 });
 
