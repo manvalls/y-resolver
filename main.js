@@ -52,7 +52,8 @@ Object.defineProperties(Resolver.prototype,bag = {
     
     while(cb = yd[listeners].shift()){
       args = yd[lArgs].shift();
-      cb.apply(yd,args);
+      try{ cb.apply(yd,args); }
+      catch(e){ setTimeout(throwError,0,e); }
     }
     
   }},
@@ -69,7 +70,8 @@ Object.defineProperties(Resolver.prototype,bag = {
     
     while(cb = yd[listeners].shift()){
       args = yd[lArgs].shift();
-      cb.apply(yd,args);
+      try{ cb.apply(yd,args); }
+      catch(e){ setTimeout(throwError,0,e); }
     }
     
   }}
