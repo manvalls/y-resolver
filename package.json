@@ -4,7 +4,8 @@
   "description": "An object which resolves yieldeds",
   "main": "main.js",
   "dependencies": {
-    "u-su": ""
+    "u-su": "",
+    "y-setter": ""
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,7 @@
 var Su = require('u-su'),
     
     listeners = Su(),
+    lSetter = Su(),
     lArgs = Su(),
     
     accepted = Su(),
@@ -11,16 +12,14 @@ var Su = require('u-su'),
     yielded = Su(),
     inited = Su(),
     
-    before = Su(),
-    after = Su(),
-    
     errorTimeout = Su(),
     
     bag,
     
     Resolver,
     Yielded,
-    Hybrid;
+    Hybrid,
+    Setter;
 
 // Resolver
 
@@ -29,6 +28,8 @@ module.exports = Resolver = function Resolver(Constructor){
   this[yielded] = new Constructor();
   this[yielded][inited] = true;
 };
+
+Setter = require('y-setter');
 
 function throwError(e){
   throw e;
@@ -54,6 +55,7 @@ Object.defineProperties(Resolver.prototype,bag = {
       args = yd[lArgs].shift();
       try{ cb.apply(yd,args); }
       catch(e){ setTimeout(throwError,0,e); }
+      yd[lSetter].value--;
     }
     
   }},
@@ -72,6 +74,7 @@ Object.defineProperties(Resolver.prototype,bag = {
       args = yd[lArgs].shift();
       try{ cb.apply(yd,args); }
       catch(e){ setTimeout(throwError,0,e); }
+      yd[lSetter].value--;
     }
     
   }}
@@ -88,6 +91,9 @@ Resolver.Yielded = Yielded = function Yielded(prop){
     this[prop] = Object.create(Resolver.prototype);
     this[prop][yielded] = this;
   }
+  
+  this[lSetter] = new Setter();
+  this[lSetter].value = 0;
   
   this[listeners] = [];
   this[lArgs] = [];
@@ -107,9 +113,10 @@ Object.defineProperties(Yielded.prototype,{
   listen: {value: function(callback,args){
     this[listeners].push(callback);
     this[lArgs].push(args || []);
+    this[lSetter].value++;
   }},
   
-  listeners: {get: function(){ return this[listeners].length; }},
+  listeners: {get: function(){ return this[lSetter].getter; }},
   
   toPromise: {value: function(){
     var that = this;
@@ -143,34 +150,6 @@ Object.defineProperties(Yielded.prototype,{
   }},
   
   value: {get: function(){ return this[value]; }},
-  
-  before: {value: function(){
-    this[before] = this[before] || new Resolver();
-    return this[before].yielded;
-  }},
-  
-  after: {value: function(){
-    this[after] = this[after] || new Resolver();
-    return this[after].yielded;
-  }},
-  
-  start: {value: function(){
-    var res = this[before];
-    
-    if(!res) return;
-    delete this[before];
-    
-    res.accept();
-  }},
-  
-  end: {value: function(){
-    var res = this[after];
-    
-    if(!res) return;
-    delete this[after];
-    
-    res.accept();
-  }},
   
   canBeWalked: {value: true}
   
