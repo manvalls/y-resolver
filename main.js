@@ -35,6 +35,11 @@ function throwError(e){
   throw e;
 }
 
+function handleBind(e,yd){
+  if(yd.accepted) e.accept(yd.value);
+  else e.reject(yd.error);
+}
+
 Object.defineProperties(Resolver.prototype,bag = {
   
   yielded: {get: function(){ return this[yielded]; }},
@@ -77,6 +82,11 @@ Object.defineProperties(Resolver.prototype,bag = {
       yd[lSetter].value--;
     }
     
+  }},
+  
+  bind: {value: function(yd){
+    if(yd.done) handleBind(this,yd);
+    else yd.listen(handleBind,[this,yd]);
   }}
   
 });
