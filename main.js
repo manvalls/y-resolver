@@ -17,7 +17,7 @@ var Su = require('u-su'),
     bag,
     
     Resolver,Yielded,Hybrid,Setter,
-    tick;
+    tick,isYielded,toYielded;
 
 // Resolver
 
@@ -26,6 +26,9 @@ module.exports = Resolver = function Resolver(Constructor){
   this[yielded] = new Constructor();
   this[yielded][inited] = true;
 };
+
+Resolver.isYielded = isYielded = '2Alqg4pLDZMZl8Y';
+Resolver.toYielded = toYielded = '4siciY0dau6kkit';
 
 Setter = require('y-setter');
 tick = require('y-timers/tick');
@@ -198,8 +201,6 @@ Object.defineProperties(Yielded.prototype,{
   
   value: {get: function(){ return this[value]; }},
   
-  canBeWalked: {value: true},
-  
   then: {value: function(onFulfilled,onRejected){
     var r = new Resolver(),
         that = this;
@@ -211,6 +212,8 @@ Object.defineProperties(Yielded.prototype,{
   }}
   
 });
+
+Object.defineProperty(Yielded.prototype,isYielded,{value: true});
 
 // Hybrid
 
