@@ -16,10 +16,8 @@ var Su = require('u-su'),
     
     bag,
     
-    Resolver,
-    Yielded,
-    Hybrid,
-    Setter;
+    Resolver,Yielded,Hybrid,Setter,
+    tick;
 
 // Resolver
 
@@ -30,14 +28,15 @@ module.exports = Resolver = function Resolver(Constructor){
 };
 
 Setter = require('y-setter');
+tick = require('y-timers/tick');
 
 function throwError(e){
   throw e;
 }
 
-function handleBind(e,yd){
-  if(yd.accepted) e.accept(yd.value);
-  else e.reject(yd.error);
+function handle(e){
+  if(this[accepted]) e.accept(this[value]);
+  else e.reject(this[error]);
 }
 
 Object.defineProperties(Resolver.prototype,bag = {
@@ -85,8 +84,8 @@ Object.defineProperties(Resolver.prototype,bag = {
   }},
   
   bind: {value: function(yd){
-    if(yd.done) handleBind(this,yd);
-    else yd.listen(handleBind,[this,yd]);
+    if(yd.done) handle.call(yd,this);
+    else yd.listen(handle,[this]);
   }}
   
 });
@@ -116,6 +115,44 @@ Resolver.Yielded = Yielded = function Yielded(prop){
 function toPromiseCb(resolve,reject){
   if(this[accepted]) resolve(this[value]);
   else reject(this[error]);
+}
+
+function call(f,arg,r,yd){
+  var v;
+  
+  try{
+    
+    v = f(arg);
+    if(v == r.yielded) return r.reject(new TypeError());
+    
+    try{
+      
+      if(v && typeof v.then == 'function'){
+        
+        v.then(function(value){
+          r.accept(value);
+        },function(error){
+          r.reject(error);
+        });
+        
+        return;
+      }
+      
+    }catch(e){ return r.reject(e); }
+    
+    r.accept(v);
+    
+  }catch(e){ r.reject(e); }
+}
+
+function handleThen(onFulfilled,onRejected,r){
+  if(this[accepted]){
+    if(typeof onFulfilled == 'function') tick().listen(call,[onFulfilled,this[value],r,this]);
+    else r.accept(this[value]);
+  }else{
+    if(typeof onRejected == 'function') tick().listen(call,[onRejected,this[error],r,this]);
+    else r.reject(this[error]);
+  }
 }
 
 Object.defineProperties(Yielded.prototype,{
@@ -161,7 +198,17 @@ Object.defineProperties(Yielded.prototype,{
   
   value: {get: function(){ return this[value]; }},
   
-  canBeWalked: {value: true}
+  canBeWalked: {value: true},
+  
+  then: {value: function(onFulfilled,onRejected){
+    var r = new Resolver(),
+        that = this;
+    
+    if(this.done) handleThen.call(this,onFulfilled,onRejected,r);
+    else this.listen(handleThen,[onFulfilled,onRejected,r]);
+    
+    return r.yielded;
+  }}
   
 });
 
