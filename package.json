@@ -5,7 +5,8 @@
   "main": "main.js",
   "dependencies": {
     "u-su": "",
-    "y-setter": ""
+    "y-setter": "",
+    "y-timers": ""
   },
   "repository": {
     "type": "git",
