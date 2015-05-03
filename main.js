@@ -11,6 +11,7 @@ var Su = require('u-su'),
     error = Su(),
     yielded = Su(),
     inited = Su(),
+    cancel = Su(),
     
     errorTimeout = Su(),
     
@@ -37,10 +38,20 @@ function throwError(e){
   throw e;
 }
 
-function handle(e){
+function handle(e,binder){
+  if(binder[cancel]) return;
+  
   if(this[accepted]) e.accept(this[value]);
   else e.reject(this[error]);
 }
+
+function Binder(){
+  this[cancel] = false;
+}
+
+Object.defineProperty(Binder.prototype,'unbind',{value: function(){
+  this[cancel] = true;
+}});
 
 Object.defineProperties(Resolver.prototype,bag = {
   
@@ -87,8 +98,12 @@ Object.defineProperties(Resolver.prototype,bag = {
   }},
   
   bind: {value: function(yd){
-    if(yd.done) handle.call(yd,this);
-    else yd.listen(handle,[this]);
+    var binder = new Binder();
+    
+    if(yd.done) handle.call(yd,this,binder);
+    else yd.listen(handle,[this,binder]);
+    
+    return binder;
   }}
   
 });
