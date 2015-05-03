@@ -1,6 +1,6 @@
 {
   "name": "y-resolver",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "An object which resolves yieldeds",
   "main": "main.js",
   "dependencies": {
