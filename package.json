@@ -4,9 +4,10 @@
   "description": "An object which resolves yieldeds",
   "main": "main.js",
   "dependencies": {
-    "u-su": "",
     "y-setter": "",
-    "y-timers": ""
+    "y-timers": "",
+    "u-proto": "",
+    "detacher": ""
   },
   "repository": {
     "type": "git",

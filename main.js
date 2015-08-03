@@ -1,271 +1,188 @@
-var Su = require('u-su'),
-    
-    listeners = Su(),
-    lSetter = Su(),
-    lArgs = Su(),
-    
-    accepted = Su(),
-    rejected = Su(),
-    done = Su(),
-    value = Su(),
-    error = Su(),
-    yielded = Su(),
-    inited = Su(),
-    cancel = Su(),
-    
-    errorTimeout = Su(),
-    
-    bag,
-    
-    Resolver,Yielded,Hybrid,Setter,
-    tick,isYielded,toYielded;
+var define = require('u-proto/define'),
+
+    done = Symbol(),
+    accepted = Symbol(),
+    rejected = Symbol(),
+
+    value = Symbol(),
+    error = Symbol(),
+
+    yielded = Symbol(),
+    listeners = Symbol(),
+    count = Symbol(),
+
+    timeout = Symbol(),
+
+    isYielded = '2Alqg4pLDZMZl8Y',
+    toYielded = '4siciY0dau6kkit',
+
+    Setter,bag;
 
 // Resolver
 
-module.exports = Resolver = function Resolver(Constructor){
+function Resolver(Constructor){
   Constructor = Constructor || Yielded;
   this[yielded] = new Constructor();
-  this[yielded][inited] = true;
-};
+}
 
-Resolver.isYielded = isYielded = '2Alqg4pLDZMZl8Y';
-Resolver.toYielded = toYielded = '4siciY0dau6kkit';
+/*/ exports /*/
+
+module.exports = Resolver;
+Resolver.Yielded = Yielded;
+Resolver.Hybrid = HybridYielded;
+
+Resolver.isYielded = isYielded;
+Resolver.toYielded = toYielded;
+
+Resolver.accept = accept;
+Resolver.reject = reject;
+Resolver.chain = chain;
+
+/*/ imports /*/
 
 Setter = require('y-setter');
-tick = require('y-timers/tick');
+
+/*/ ******* /*/
+
+Resolver.prototype[define](bag = {
+
+  get yielded(){ return this[yielded]; },
+
+  accept: function(data,lock){
+    var yd = this[yielded],
+        ls = yd[listeners],
+        args;
+
+    if(yd[done]) return;
+
+    yd[done] = true;
+    yd[accepted] = true;
+    yd[value] = data;
+
+    if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
+    else while(args = ls.shift()) callCb(args,yd);
+  },
+
+  reject: function(e,lock){
+    var yd = this[yielded],
+        ls = yd[listeners],
+        args;
+
+    if(yd[done]) return;
+    yd[timeout] = setTimeout(throwError,0,error);
+
+    yd[done] = true;
+    yd[rejected] = true;
+    yd[error] = e;
+
+    if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
+    else while(args = ls.shift()) callCb(args,yd);
+  },
+
+  bind: require('./Resolver/bind.js')
+
+});
+
+// - utils
+
+function callCb(args,yd){
+  var cb = args[0],
+      ag = args[1] || [],
+      th = args[2] || yd;
+
+  try{ cb.apply(th,ag); }
+  catch(e){ setTimeout(throwError,0,e); }
+}
 
 function throwError(e){
   throw e;
 }
 
-function handle(e,binder){
-  if(binder[cancel]) return;
-  
-  if(this[accepted]) e.accept(this[value]);
-  else e.reject(this[error]);
-}
-
-function Binder(){
-  this[cancel] = false;
-}
-
-Object.defineProperty(Binder.prototype,'unbind',{value: function(){
-  this[cancel] = true;
-}});
-
-Object.defineProperties(Resolver.prototype,bag = {
-  
-  yielded: {get: function(){ return this[yielded]; }},
-  
-  reject: {value: function(e){
-    var yd = this[yielded],
-        i,cb,args;
-    
-    if(yd[done]) return;
-    
-    yd[errorTimeout] = setTimeout(throwError,0,e);
-    
-    yd[done] = true;
-    yd[rejected] = true;
-    yd[error] = e;
-    
-    while(cb = yd[listeners].shift()){
-      args = yd[lArgs].shift();
-      try{ cb.apply(yd,args); }
-      catch(e){ setTimeout(throwError,0,e); }
-      yd[lSetter].value--;
-    }
-    
-  }},
-  
-  accept: {value: function(v){
-    var yd = this[yielded],
-        i,cb,args;
-    
-    if(yd[done]) return;
-    
-    yd[done] = true;
-    yd[accepted] = true;
-    yd[value] = v;
-    
-    while(cb = yd[listeners].shift()){
-      args = yd[lArgs].shift();
-      try{ cb.apply(yd,args); }
-      catch(e){ setTimeout(throwError,0,e); }
-      yd[lSetter].value--;
-    }
-    
-  }},
-  
-  bind: {value: function(yd){
-    var binder = new Binder();
-    
-    if(yd.done) handle.call(yd,this,binder);
-    else yd.listen(handle,[this,binder]);
-    
-    return binder;
-  }}
-  
-});
-
 // Yielded
 
-Resolver.Yielded = Yielded = function Yielded(prop){
-  if(this[inited]) return;
-  
+function Yielded(prop){
+
+  if(this[listeners]) return;
+
   if(prop){
-    this[inited] = true;
     this[prop] = Object.create(Resolver.prototype);
     this[prop][yielded] = this;
   }
-  
-  this[lSetter] = new Setter();
-  this[lSetter].value = 0;
-  
-  this[listeners] = [];
-  this[lArgs] = [];
-  
+
   this[done] = false;
-  this[rejected] = false;
   this[accepted] = false;
+  this[rejected] = false;
+
+  this[listeners] = [];
+  this[count] = new Setter();
+  this[count].value = 0;
+
 }
 
-function toPromiseCb(resolve,reject){
-  if(this[accepted]) resolve(this[value]);
-  else reject(this[error]);
-}
+Yielded.prototype[define](isYielded,true);
+Yielded.prototype[define]({
 
-function call(f,arg,r,yd){
-  var v;
-  
-  try{
-    
-    v = f(arg);
-    if(v == r.yielded) return r.reject(new TypeError());
-    
-    try{
-      
-      if(v && typeof v.then == 'function'){
-        
-        v.then(function(value){
-          r.accept(value);
-        },function(error){
-          r.reject(error);
-        });
-        
-        return;
-      }
-      
-    }catch(e){ return r.reject(e); }
-    
-    r.accept(v);
-    
-  }catch(e){ r.reject(e); }
-}
+  get listeners(){ return this[count].getter; },
 
-function handleThen(onFulfilled,onRejected,r){
-  if(this[accepted]){
-    if(typeof onFulfilled == 'function') tick().listen(call,[onFulfilled,this[value],r,this]);
-    else r.accept(this[value]);
-  }else{
-    if(typeof onRejected == 'function') tick().listen(call,[onRejected,this[error],r,this]);
-    else r.reject(this[error]);
-  }
-}
+  get done(){ return this[done]; },
 
-Object.defineProperties(Yielded.prototype,{
-  
-  listen: {value: function(callback,args){
-    this[listeners].push(callback);
-    this[lArgs].push(args || []);
-    this[lSetter].value++;
-  }},
-  
-  listeners: {get: function(){ return this[lSetter].getter; }},
-  
-  toPromise: {value: function(){
-    var that = this;
-    
-    if(this[done]){
-      if(this[accepted]) return Promise.accept(this[value]);
-      return Promise.reject(this[error]);
-    }
-    
-    return new Promise(function(){
-      that.listen(toPromiseCb,arguments);
-    });
-    
-  }},
-  
-  done: {get: function(){ return this[done]; }},
-  
-  accepted: {get: function(){
-    clearTimeout(this[errorTimeout]);
+  get accepted(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
     return this[accepted];
-  }},
-  
-  rejected: {get: function(){
-    clearTimeout(this[errorTimeout]);
-    return this[rejected];
-  }},
-  
-  error: {get: function(){
-    clearTimeout(this[errorTimeout]);
-    return this[error];
-  }},
-  
-  value: {get: function(){ return this[value]; }},
-  
-  then: {value: function(onFulfilled,onRejected){
-    var r = new Resolver(),
-        that = this;
-    
-    if(this.done) handleThen.call(this,onFulfilled,onRejected,r);
-    else this.listen(handleThen,[onFulfilled,onRejected,r]);
-    
-    return r.yielded;
-  }}
-  
-});
+  },
 
-Object.defineProperty(Yielded.prototype,isYielded,{value: true});
+  get rejected(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
+    return this[rejected];
+  },
+
+  get value(){ return this[value]; },
+  get error(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
+    return this[error];
+  },
+
+  listen: function(){
+    this[listeners].push(arguments);
+    this[count].value++;
+  },
+
+  then: require('./Yielded/then.js')
+
+});
 
 // Hybrid
 
-Resolver.Hybrid = Hybrid = function Hybrid(){
+function HybridYielded(){
   this[yielded] = this;
   Yielded.call(this);
-  
-  this[inited] = true;
 }
 
-Hybrid.prototype = new Yielded();
-Hybrid.prototype.constructor = Hybrid;
+HybridYielded.prototype = Object.create(Yielded.prototype);
+HybridYielded.prototype[define]('constructor',HybridYielded);
+HybridYielded.prototype[define](bag);
 
-Object.defineProperties(Hybrid.prototype,bag);
+// utils
 
-// Auxiliar functions
-
-Resolver.accept = function(v){
-  var resolver = new Resolver();
-  
-  resolver.accept(v);
-  return resolver.yielded;
-};
-
-Resolver.reject = function(e){
-  var resolver = new Resolver();
-  
-  resolver.reject(e);
-  return resolver.yielded;
-};
-
-Resolver.chain = function(){
+function chain(){
   var last = arguments[arguments.length - 1][yielded],
       i;
-  
+
   arguments[arguments.length - 1][yielded] = arguments[0][yielded];
   for(i = 0;i < arguments.length - 2;i++) arguments[i][yielded] = arguments[i + 1][yielded];
   arguments[arguments.length - 2][yielded] = last;
-};
+}
 
+function accept(v){
+  var resolver = new Resolver();
+
+  resolver.accept(v);
+  return resolver.yielded;
+}
+
+function reject(e){
+  var resolver = new Resolver();
+
+  resolver.reject(e);
+  return resolver.yielded;
+}
