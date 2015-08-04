@@ -1,4 +1,5 @@
 var define = require('u-proto/define'),
+    Detacher = require('detacher'),
 
     done = Symbol(),
     accepted = Symbol(),
@@ -143,13 +144,23 @@ Yielded.prototype[define]({
   },
 
   listen: function(){
+    var d = new Detacher(detach,[arguments,this]);
+
     this[listeners].push(arguments);
     this[count].value++;
+    return d;
   },
 
   then: require('./Yielded/then.js')
 
 });
+
+// - utils
+
+function detach(args,yd){
+  var i = yd[listeners].indexOf(args);
+  if(i != -1) yd[listeners].splice(i,1);
+}
 
 // Hybrid
 
