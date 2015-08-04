@@ -62,6 +62,8 @@ Resolver.prototype[define](bag = {
 
     if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
     else while(args = ls.shift()) callCb(args,yd);
+
+    updateCount(yd);
   },
 
   reject: function(e,lock){
@@ -78,6 +80,8 @@ Resolver.prototype[define](bag = {
 
     if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
     else while(args = ls.shift()) callCb(args,yd);
+
+    updateCount(yd);
   },
 
   bind: require('./Resolver/bind.js')
@@ -147,7 +151,7 @@ Yielded.prototype[define]({
     var d = new Detacher(detach,[arguments,this]);
 
     this[listeners].push(arguments);
-    this[count].value++;
+    updateCount(this);
     return d;
   },
 
@@ -160,6 +164,11 @@ Yielded.prototype[define]({
 function detach(args,yd){
   var i = yd[listeners].indexOf(args);
   if(i != -1) yd[listeners].splice(i,1);
+  updateCount(yd);
+}
+
+function updateCount(yd){
+  yd[count].value = yd[listeners].length;
 }
 
 // Hybrid
