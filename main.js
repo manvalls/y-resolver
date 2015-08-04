@@ -69,7 +69,7 @@ Resolver.prototype[define](bag = {
         args;
 
     if(yd[done]) return;
-    yd[timeout] = setTimeout(throwError,0,error);
+    yd[timeout] = setTimeout(throwError,0,e);
 
     yd[done] = true;
     yd[rejected] = true;
