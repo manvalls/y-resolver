@@ -21,8 +21,8 @@ var define = require('u-proto/define'),
 
 // Resolver
 
-function Resolver(){
-  this[yielded] = new Yielded();
+function Resolver(counter){
+  this[yielded] = new Yielded(null,counter);
 }
 
 /*/ exports /*/
@@ -64,7 +64,6 @@ Resolver.prototype[define](bag = {
       detach(args,yd);
     }
 
-    updateCount(yd);
   },
 
   reject: function(e){
@@ -84,7 +83,6 @@ Resolver.prototype[define](bag = {
       detach(args,yd);
     }
 
-    updateCount(yd);
   },
 
   bind: require('./Resolver/bind.js')
@@ -108,7 +106,7 @@ function throwError(e){
 
 // Yielded
 
-function Yielded(prop){
+function Yielded(prop,counter){
 
   if(this[listeners]) return;
 
@@ -122,8 +120,9 @@ function Yielded(prop){
   this[rejected] = false;
 
   this[listeners] = new Set();
-  this[count] = new Setter();
-  this[count].value = 0;
+
+  this[count] = counter || new Setter();
+  if(this[count].value == null) this[count].value = 0;
 
 }
 
@@ -159,7 +158,7 @@ Yielded.prototype[define]({
     }
 
     this[listeners].add(arguments);
-    updateCount(this);
+    this[count].value++;
     return d;
   },
 
@@ -170,12 +169,7 @@ Yielded.prototype[define]({
 // - utils
 
 function detach(args,yd){
-  yd[listeners].delete(args);
-  updateCount(yd);
-}
-
-function updateCount(yd){
-  yd[count].value = yd[listeners].size;
+  if(yd[listeners].delete(args)) yd[count].value--;
 }
 
 // Hybrid
