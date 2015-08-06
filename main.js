@@ -21,9 +21,8 @@ var define = require('u-proto/define'),
 
 // Resolver
 
-function Resolver(Constructor){
-  Constructor = Constructor || Yielded;
-  this[yielded] = new Constructor();
+function Resolver(){
+  this[yielded] = new Yielded();
 }
 
 /*/ exports /*/
@@ -49,7 +48,7 @@ Resolver.prototype[define](bag = {
 
   get yielded(){ return this[yielded]; },
 
-  accept: function(data,lock){
+  accept: function(data){
     var yd = this[yielded],
         ls = yd[listeners],
         args;
@@ -60,13 +59,15 @@ Resolver.prototype[define](bag = {
     yd[accepted] = true;
     yd[value] = data;
 
-    if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
-    else while(args = ls.shift()) callCb(args,yd);
+    for(args of ls){
+      callCb(args,yd);
+      detach(args,yd);
+    }
 
     updateCount(yd);
   },
 
-  reject: function(e,lock){
+  reject: function(e){
     var yd = this[yielded],
         ls = yd[listeners],
         args;
@@ -78,8 +79,10 @@ Resolver.prototype[define](bag = {
     yd[rejected] = true;
     yd[error] = e;
 
-    if(lock) while(args = ls.shift()) lock.take().listen(callCb,[args,yd]);
-    else while(args = ls.shift()) callCb(args,yd);
+    for(args of ls){
+      callCb(args,yd);
+      detach(args,yd);
+    }
 
     updateCount(yd);
   },
@@ -118,7 +121,7 @@ function Yielded(prop){
   this[accepted] = false;
   this[rejected] = false;
 
-  this[listeners] = [];
+  this[listeners] = new Set();
   this[count] = new Setter();
   this[count].value = 0;
 
@@ -150,7 +153,12 @@ Yielded.prototype[define]({
   listen: function(){
     var d = new Detacher(detach,[arguments,this]);
 
-    this[listeners].push(arguments);
+    if(this[done]){
+      callCb(arguments,this);
+      return d;
+    }
+
+    this[listeners].add(arguments);
     updateCount(this);
     return d;
   },
@@ -162,13 +170,12 @@ Yielded.prototype[define]({
 // - utils
 
 function detach(args,yd){
-  var i = yd[listeners].indexOf(args);
-  if(i != -1) yd[listeners].splice(i,1);
+  yd[listeners].delete(args);
   updateCount(yd);
 }
 
 function updateCount(yd){
-  yd[count].value = yd[listeners].length;
+  yd[count].value = yd[listeners].size;
 }
 
 // Hybrid
