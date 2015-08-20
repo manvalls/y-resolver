@@ -16,6 +16,7 @@ var define = require('u-proto/define'),
 
     isYielded = '2Alqg4pLDZMZl8Y',
     toYielded = '4siciY0dau6kkit',
+    defer =     '1KlIC6JgRPjS0vm',
 
     Setter,bag;
 
@@ -33,6 +34,7 @@ Resolver.Hybrid = HybridYielded;
 
 Resolver.isYielded = isYielded;
 Resolver.toYielded = toYielded;
+Resolver.defer = defer;
 
 Resolver.accept = accept;
 Resolver.reject = reject;
