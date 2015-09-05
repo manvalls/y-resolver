@@ -18,5 +18,5 @@ if(!yd.done) yd.listen(function(){
 
 ```
 
-[travis-image]: https://travis-ci.org/manvalls/{{pkg}}.svg?branch=master
-[travis-url]: https://travis-ci.org/manvalls/{{pkg}}
+[travis-image]: https://travis-ci.org/manvalls/y-resolver.svg?branch=master
+[travis-url]: https://travis-ci.org/manvalls/y-resolver
