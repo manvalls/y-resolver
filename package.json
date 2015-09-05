@@ -9,6 +9,14 @@
     "u-proto": "",
     "detacher": ""
   },
+  "devDependencies": {
+    "u-test": "",
+    "y-callback": "",
+    "promises-aplus-tests": ""
+  },
+  "scripts": {
+    "test": "node --harmony test && promises-aplus-tests adapter.js"
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/manvalls/y-resolver.git"

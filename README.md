@@ -1,4 +1,4 @@
-# Resolver
+# Resolver [![Build Status][travis-image]][travis-url]
 
 ## Sample usage
 
@@ -17,3 +17,6 @@ if(!yd.done) yd.listen(function(){
 });
 
 ```
+
+[travis-image]: https://travis-ci.org/manvalls/{{pkg}}.svg?branch=master
+[travis-url]: https://travis-ci.org/manvalls/{{pkg}}

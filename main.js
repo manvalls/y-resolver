@@ -40,6 +40,9 @@ Resolver.accept = accept;
 Resolver.reject = reject;
 Resolver.chain = chain;
 
+Resolver.race = race;
+Resolver.all = all;
+
 /*/ imports /*/
 
 Setter = require('y-setter');
@@ -103,7 +106,7 @@ function callCb(args,yd){
 }
 
 function throwError(e){
-  throw e;
+  if(!Resolver.doNotThrow) throw e;
 }
 
 // Yielded
@@ -208,4 +211,42 @@ function reject(e){
 
   resolver.reject(e);
   return resolver.yielded;
+}
+
+function race(it){
+  var res = new Resolver(),
+      yd;
+
+  for(yd of it) res.bind(yd);
+  return res.yielded;
+}
+
+function all(it){
+  var res = new Resolver(),
+      ctx = {},
+      yd;
+
+  ctx.remaining = 1;
+  ctx.result = [];
+
+  for(yd of it){
+    ctx.remaining++;
+    yd.listen(raceIt,[ctx,res,ctx.remaining - 2]);
+  }
+
+  ctx.remaining--;
+  if(ctx.result.length == ctx.remaining) res.accept(ctx.result);
+
+  return res.yielded;
+}
+
+// - utils
+
+function raceIt(ctx,res,i){
+
+  if(this.accepted){
+    ctx.result[i] = this.value;
+    if(ctx.result.length == ctx.remaining) res.accept(ctx.result);
+  }else res.reject(this.error);
+
 }

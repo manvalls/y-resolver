@@ -22,8 +22,9 @@ function handleThen(onFulfilled,onRejected,r){
 
 }
 
-function call(f,arg,r,yd){
-  var v;
+function call(f,arg,r){
+  var ignore = false,
+      v,then;
 
   try{
 
@@ -32,24 +33,39 @@ function call(f,arg,r,yd){
 
     try{
 
-      if(v && typeof v.then == 'function'){
+      if(v && (
+          typeof v == 'object' ||
+          typeof v == 'function'
+        ) && typeof (then = v.then) == 'function'){
 
-        v.then(function(value){
-          r.accept(value);
+        then.call(v,function(value){
+
+          if(ignore) return;
+          ignore = true;
+
+          call(PT,value,r);
+
         },function(error){
+
+          if(ignore) return;
+          ignore = true;
+
           r.reject(error);
+
         });
 
         return;
       }
 
-    }catch(e){ return r.reject(e); }
+    }catch(e){ return ignore ? null : r.reject(e); }
 
     r.accept(v);
 
   }catch(e){ r.reject(e); }
 
 }
+
+function PT(v){ return v; }
 
 /*/ exports /*/
 
