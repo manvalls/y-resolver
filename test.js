@@ -243,3 +243,31 @@ test('Resolver.reject()',function(){
   error(yd,obj);
 
 });
+
+test('Resolver.chain()',function(){
+  var h1 = new Resolver.Hybrid(),
+      h2 = new Resolver.Hybrid(),
+      obj1 = {},
+      obj2 = {};
+
+  Resolver.chain(h1,h2);
+
+  listenAccepted(h1,obj1);
+  isNotDone(h1);
+  value(h1,undefined);
+  error(h1,undefined);
+  h2.accept(obj1);
+  isAccepted(h1);
+  value(h1,obj1);
+  error(h1,undefined);
+
+  listenRejected(h2,obj2);
+  isNotDone(h2);
+  error(h2,undefined);
+  value(h2,undefined);
+  h1.reject(obj2);
+  isRejected(h2);
+  error(h2,obj2);
+  value(h2,undefined);
+
+});
