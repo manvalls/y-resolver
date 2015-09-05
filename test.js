@@ -271,3 +271,51 @@ test('Resolver.chain()',function(){
   value(h2,undefined);
 
 });
+
+test('Resolver.race()',function(){
+  var r1 = new Resolver(),
+      r2 = new Resolver(),
+      y1 = r1.yielded,
+      y2 = r2.yielded,
+      race = Resolver.race([y1,y2]),
+      obj = {};
+
+  r2.accept(obj);
+  assert.strictEqual(race.value,obj);
+
+  r1 = new Resolver();
+  r2 = new Resolver();
+  y1 = r1.yielded;
+  y2 = r2.yielded;
+  race = Resolver.race([y1,y2]);
+  obj = {};
+
+  r1.reject(obj);
+  assert.strictEqual(race.error,obj);
+
+});
+
+test('Resolver.all()',function(){
+  var r1 = new Resolver(),
+      r2 = new Resolver(),
+      y1 = r1.yielded,
+      y2 = r2.yielded,
+      all = Resolver.all([y1,y2]),
+      obj1 = {},
+      obj2 = {};
+
+  r2.accept(obj2);
+  r1.accept(obj1);
+  assert.deepEqual(all.value,[obj1,obj2]);
+
+  r1 = new Resolver();
+  r2 = new Resolver();
+  y1 = r1.yielded;
+  y2 = r2.yielded;
+  all = Resolver.all([y1,y2]);
+  obj1 = {};
+
+  r1.reject(obj1);
+  assert.strictEqual(all.error,obj1);
+
+});

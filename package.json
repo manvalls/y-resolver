@@ -1,7 +1,7 @@
 {
   "name": "y-resolver",
   "version": "5.2.3",
-  "description": "An object which resolves yieldeds",
+  "description": "A backwards compatible extension to the Promises/A+ spec",
   "main": "main.js",
   "dependencies": {
     "y-setter": "",
