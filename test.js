@@ -243,6 +243,24 @@ test('Basic',function(){
 
   });
 
+  test('\'resolver\' property',function(){
+    var yd = new Resolver.Yielded('resolver'),
+        res = yd.resolver,
+        obj = {};
+
+    assert.equal(res.yielded,yd);
+
+    listenAccepted(res.yielded,obj);
+    isNotDone(res.yielded);
+    value(res.yielded,undefined);
+    error(res.yielded,undefined);
+    res.accept(obj);
+    isAccepted(res.yielded);
+    value(res.yielded,obj);
+    error(res.yielded,undefined);
+
+  });
+
 });
 
 test('Resolver.accept()',function(){
