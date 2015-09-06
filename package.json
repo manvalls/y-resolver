@@ -17,7 +17,7 @@
     "y-callback": ""
   },
   "scripts": {
-    "test": "istanbul cover test.js && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
+    "test": "bash test.sh"
   },
   "repository": {
     "type": "git",
