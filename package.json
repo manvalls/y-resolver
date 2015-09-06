@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
+    "istanbul": "^0.3.19",
     "promises-aplus-tests": "^2.1.1",
     "u-test": "",
     "y-callback": ""
