@@ -1,12 +1,12 @@
-/* istanbul ignore next */ (function(){
 var test = require('u-test'),
     Resolver = require('./main.js'),
     assert = require('assert'),
     Cb = require('y-callback'),
     Setter = require('y-setter'),
     promisesAplusTests = require("promises-aplus-tests"),
-    adapter = {},
+    domain = require('domain'),
 
+    adapter = {},
     isYd = Resolver.isYielded;
 
 function listenOk(yd,accepted,reason){
@@ -42,6 +42,31 @@ function listenOk(yd,accepted,reason){
     });
 
     yd.listen(cb,[obj1,obj2,obj3],that);
+    yield cb;
+
+    if(accepted) isAccepted(yd,reason);
+    else isRejected(yd,reason);
+
+  });
+
+  if(yd.done) test('Throwing listener',function*(){
+    var obj = {},
+        d = domain.create(),
+        cb,flag;
+
+    d.on('error',cb = Cb(function(e){
+      assert.equal(e,obj);
+    }));
+
+    d.run(function(){
+      yd.listen(function(){
+        throw obj;
+      });
+
+      flag = true;
+    });
+
+    assert(flag);
     yield cb;
 
     if(accepted) isAccepted(yd,reason);
@@ -316,23 +341,25 @@ test('Resolver.all()',function(){
 
 });
 
-// Promises/A+ spec
+setTimeout(function(){
 
-Resolver.doNotThrow = true;
+  // Promises/A+ spec
 
-adapter.resolved = Resolver.accept;
-adapter.rejected = Resolver.reject;
+  Resolver.doNotThrow = true;
 
-adapter.deferred = function(){
-  var res = new Resolver();
+  adapter.resolved = Resolver.accept;
+  adapter.rejected = Resolver.reject;
 
-  return {
-    promise: res.yielded,
-    resolve: function(v){ res.accept(v); },
-    reject: function(e){ res.reject(e); }
+  adapter.deferred = function(){
+    var res = new Resolver();
+
+    return {
+      promise: res.yielded,
+      resolve: function(v){ res.accept(v); },
+      reject: function(e){ res.reject(e); }
+    };
   };
-};
 
-promisesAplusTests(adapter,function(e){ });
+  promisesAplusTests(adapter,function(e){ });
 
-})();
+},200);
