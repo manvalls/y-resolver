@@ -1,7 +1,7 @@
 var test = require('u-test'),
     Resolver = require('./main.js'),
     assert = require('assert'),
-    Cb = require('y-callback/node'),
+    Cb = require('y-callback'),
     Setter = require('y-setter'),
 
     isYd = Resolver.isYielded;
@@ -12,17 +12,14 @@ function listenOk(yd,accepted,reason){
       obj3 = {};
 
   test('Simple listener called',function*(){
-    var cb = Cb(),
-        that = {};
+    var cb;
 
-    yd.listen(function(){ try{
-
+    cb = Cb(function(){
       assert.equal(yd,this);
       assert.equal(arguments.length,0);
-      cb();
+    });
 
-    }catch(e){ cb(e); } });
-
+    yd.listen(cb);
     yield cb;
 
     if(accepted) isAccepted(yd,reason);
@@ -31,21 +28,17 @@ function listenOk(yd,accepted,reason){
   });
 
   test('Listener called with arguments and thisArg',function*(){
-    var cb = Cb(),
-        that = {};
+    var that = {},
+        cb;
 
-    yd.listen(function(o1,o2,o3){ try{
-
+    cb = Cb(function(o1,o2,o3){
       assert.equal(that,this);
-
       assert.equal(obj1,o1);
       assert.equal(obj2,o2);
       assert.equal(obj3,o3);
+    });
 
-      cb();
-
-    }catch(e){ cb(e); } },[obj1,obj2,obj3],that);
-
+    yd.listen(cb,[obj1,obj2,obj3],that);
     yield cb;
 
     if(accepted) isAccepted(yd,reason);
