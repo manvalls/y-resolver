@@ -4,7 +4,7 @@ rm -rf ./coverage
 
 for file in test/*.js
 do
-  istanbul cover $file --report none --print none --include-pid
+  istanbul cover "$file" --report none --print none --include-pid
 done
 
 istanbul report --root ./coverage/ lcovonly text-summary
