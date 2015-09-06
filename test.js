@@ -3,6 +3,8 @@ var test = require('u-test'),
     assert = require('assert'),
     Cb = require('y-callback'),
     Setter = require('y-setter'),
+    promisesAplusTests = require("promises-aplus-tests"),
+    adapter = {},
 
     isYd = Resolver.isYielded;
 
@@ -312,3 +314,22 @@ test('Resolver.all()',function(){
   assert.strictEqual(all.error,obj1);
 
 });
+
+// Promises/A+ spec
+
+Resolver.doNotThrow = true;
+
+adapter.resolved = Resolver.accept;
+adapter.rejected = Resolver.reject;
+
+adapter.deferred = function(){
+  var res = new Resolver();
+
+  return {
+    promise: res.yielded,
+    resolve: function(v){ res.accept(v); },
+    reject: function(e){ res.reject(e); }
+  };
+};
+
+promisesAplusTests(adapter,function(e){ });

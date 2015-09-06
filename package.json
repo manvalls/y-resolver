@@ -10,12 +10,13 @@
     "detacher": ""
   },
   "devDependencies": {
+    "coveralls": "^2.11.4",
+    "promises-aplus-tests": "^2.1.1",
     "u-test": "",
-    "y-callback": "",
-    "promises-aplus-tests": ""
+    "y-callback": ""
   },
   "scripts": {
-    "test": "node --harmony test && promises-aplus-tests adapter.js"
+    "test": "istanbul cover test.js && cat ./coverage/lcov.info | coveralls && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
