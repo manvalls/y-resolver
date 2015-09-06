@@ -1,4 +1,4 @@
-# Resolver [![Coverage Status][cover-img]][cover-url] [![Build Status][travis-img]][travis-url]
+# Resolver [![Build Status][travis-img]][travis-url] [![Coverage Status][cover-img]][cover-url]
 
 ## Sample usage
 

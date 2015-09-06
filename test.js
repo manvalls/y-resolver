@@ -1,3 +1,4 @@
+/* istanbul ignore next */ (function(){
 var test = require('u-test'),
     Resolver = require('./main.js'),
     assert = require('assert'),
@@ -170,11 +171,11 @@ test('Basic',function(){
 
     res2.bind(res.yielded);
 
-    listenRejected(yd,obj);
     isNotDone(yd);
     error(yd,undefined);
     value(yd,undefined);
     res.reject(obj);
+    listenRejected(yd,obj);
     isRejected(yd);
     error(yd,obj);
     value(yd,undefined);
@@ -333,3 +334,5 @@ adapter.deferred = function(){
 };
 
 promisesAplusTests(adapter,function(e){ });
+
+})();
