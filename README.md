@@ -12,8 +12,12 @@ setTimeout(function(){
 });
 
 if(!yd.done) yd.listen(function(){
-  if(this.accepted) console.log(this.value);
+  if(this.accepted) console.log(this.value); // hi
   else throw this.error;
+});
+
+yd.then(function(value){
+  console.log(value); // hi
 });
 
 ```
