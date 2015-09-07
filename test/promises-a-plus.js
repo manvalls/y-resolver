@@ -19,4 +19,4 @@ adapter.deferred = function(){
   };
 };
 
-promisesAplusTests(adapter,function(e){ });
+promisesAplusTests(adapter,function(e){ if(e) process.exit(1); });
