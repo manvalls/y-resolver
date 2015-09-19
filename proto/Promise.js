@@ -14,4 +14,4 @@ module.exports = function(){
   return this[yielded] = resolver.yielded;
 };
 
-if(global.Promise) Promise.prototype[define](getter,module.exports,{writable: true});
+if(global.Promise) Promise.prototype[define](getter,module.exports,{writable: true, configurable: true});

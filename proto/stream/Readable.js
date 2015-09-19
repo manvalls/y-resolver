@@ -46,4 +46,4 @@ function onceEnd(){
 }
 
 if(global.process)
-require('str' + 'eam').Readable.prototype[define](getter,module.exports,{writable: true});
+require('str' + 'eam').Readable.prototype[define](getter,module.exports,{writable: true, configurable: true});

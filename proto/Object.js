@@ -59,4 +59,4 @@ function race(res,errors,c,ctx,i){
 
 }
 
-Object.prototype[define](getter,module.exports,{writable: true});
+Object.prototype[define](getter,module.exports,{writable: true, configurable: true});
