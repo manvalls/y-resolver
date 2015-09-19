@@ -1,5 +1,5 @@
-var test = require('u-test'),
-    Resolver = require('../main.js'),
+var Resolver = require('../main.js'),
+    test = require('u-test'),
     Yielded = Resolver.Yielded,
     assert = require('assert'),
     Cb = require('y-callback'),
