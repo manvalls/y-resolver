@@ -15,8 +15,8 @@ var define = require('u-proto/define'),
     timeout = Symbol(),
 
     isYielded = '2Alqg4pLDZMZl8Y',
-    toYielded = '4siciY0dau6kkit',
-    defer =     '1KlIC6JgRPjS0vm',
+    getter =    '4siciY0dau6kkit',
+    deferrer =  '1KlIC6JgRPjS0vm',
 
     Setter,bag;
 
@@ -32,9 +32,10 @@ module.exports = Resolver;
 Resolver.Yielded = Yielded;
 Resolver.Hybrid = HybridYielded;
 
-Resolver.isYielded = isYielded;
-Resolver.toYielded = toYielded;
-Resolver.defer = defer;
+Yielded.get = getYielded;
+Yielded.is = isYieldedFunc;
+Yielded.getter = getter;
+Yielded.deferrer = deferrer;
 
 Resolver.accept = accept;
 Resolver.reject = reject;
@@ -46,6 +47,11 @@ Resolver.all = all;
 /*/ imports /*/
 
 Setter = require('y-setter');
+require('./proto/Object.js');
+require('./proto/Array.js');
+require('./proto/Promise.js');
+require('./proto/stream/Readable.js');
+require('./proto/stream/Writable.js');
 
 /*/ ******* /*/
 
@@ -177,6 +183,23 @@ function detach(args,yd){
   if(yd[listeners].delete(args)) yd[count].value--;
 }
 
+function getYielded(obj){
+
+  while(!(obj && obj[isYielded])){
+    if(!obj) return accept(obj);
+
+    if(obj[deferrer]) obj = obj[deferrer]();
+    else if(obj[getter]) obj = obj[getter]();
+    else return accept(obj);
+  }
+
+  return obj;
+}
+
+function isYieldedFunc(yd){
+  return yd && yd[isYielded];
+}
+
 // Hybrid
 
 function HybridYielded(){
@@ -217,7 +240,7 @@ function race(it){
   var res = new Resolver(),
       yd;
 
-  for(yd of it) res.bind(yd);
+  for(yd of it) res.bind(getYielded(yd));
   return res.yielded;
 }
 
@@ -231,7 +254,7 @@ function all(it){
 
   for(yd of it){
     ctx.remaining++;
-    yd.listen(raceIt,[ctx,res,ctx.remaining - 2]);
+    getYielded(yd).listen(raceIt,[ctx,res,ctx.remaining - 2]);
   }
 
   ctx.remaining--;

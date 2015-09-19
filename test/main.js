@@ -1,12 +1,13 @@
 var test = require('u-test'),
     Resolver = require('../main.js'),
+    Yielded = Resolver.Yielded,
     assert = require('assert'),
     Cb = require('y-callback'),
     Setter = require('y-setter'),
     domain = require('domain'),
+    fs = require('fs'),
 
-    adapter = {},
-    isYd = Resolver.isYielded;
+    adapter = {};
 
 function listenOk(yd,accepted,reason){
   var obj1 = {},
@@ -134,7 +135,7 @@ function isRejected(yd){
 function isYielded(yd){
 
   test('It is a Yielded',function(){
-    assert(yd[isYd]);
+    assert(Yielded.is(yd));
   });
 
 }
@@ -355,5 +356,123 @@ test('Resolver.all()',function(){
 
   r1.reject(obj1);
   assert.strictEqual(all.error,obj1);
+
+});
+
+test('proto',function*(){
+
+  test('Array',function(){
+    var r1 = new Resolver(),
+        r2 = new Resolver(),
+        y1 = r1.yielded,
+        y2 = r2.yielded,
+        all = Yielded.get([y1,y2]),
+        obj1 = {},
+        obj2 = {};
+
+    r2.accept(obj2);
+    r1.accept(obj1);
+    assert.deepEqual(all.value,[obj1,obj2]);
+
+    r1 = new Resolver();
+    r2 = new Resolver();
+    y1 = r1.yielded;
+    y2 = r2.yielded;
+    all = Yielded.get([y1,y2]);
+    obj1 = {};
+
+    r1.reject(obj1);
+    r2.accept('foo');
+    assert.strictEqual(all.error.errors[0],obj1);
+    assert.strictEqual(all.error.values[1],'foo');
+  });
+
+  test('Object',function(){
+    var r1 = new Resolver(),
+        r2 = new Resolver(),
+        y1 = r1.yielded,
+        y2 = r2.yielded,
+        race = Yielded.get({
+          [1]: y1,
+          [2]: y2
+        }),
+        obj = {};
+
+    r1.reject('boo');
+    assert(!race.done);
+    r2.accept(obj);
+    assert.strictEqual(race.value[2],obj);
+
+    r1 = new Resolver();
+    r2 = new Resolver();
+    y1 = r1.yielded;
+    y2 = r2.yielded;
+
+    race = Yielded.get({
+      [1]: y1,
+      [2]: y2
+    });
+
+    obj = {};
+
+    r1.reject(obj);
+    r2.reject('boo');
+    assert.strictEqual(race.error.errors[1],obj);
+    assert.strictEqual(race.error.errors[2],'boo');
+  });
+
+  test('Promise',function*(){
+    var p = Promise.reject(),
+        yd = Yielded.get(p),
+        cb;
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    isRejected(yd);
+
+    p = Promise.accept();
+    yd = Yielded.get(p);
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    isAccepted(yd);
+  });
+
+  yield test('stream.Writable',function*(){
+    var ws = fs.createWriteStream('./foo/bar'),
+        yd = Yielded.get(ws),
+        cb;
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    isRejected(yd);
+
+    ws = fs.createWriteStream('foo');
+    yd = Yielded.get(ws);
+
+    isNotDone(yd);
+    ws.end('bar');
+    yd.listen(cb = Cb()),yield cb;
+    isAccepted(yd);
+  });
+
+  yield test('stream.Readable',function*(){
+    var ws = fs.createReadStream('fasdasdasd'),
+        yd = Yielded.get(ws),
+        cb;
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    isRejected(yd);
+
+    ws = fs.createReadStream('foo',{encoding: 'utf-8'});
+    yd = Yielded.get(ws);
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    value(yd,'bar');
+  });
+
+  fs.unlinkSync('foo');
 
 });
