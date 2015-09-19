@@ -45,4 +45,5 @@ function run(res,arr,errors,ctx,i){
 
 }
 
-Array.prototype[define](getter,module.exports,{writable: true, configurable: true});
+if(!Array.prototype.hasOwnProperty(getter))
+Array.prototype[define](getter,module.exports,{writable: true});

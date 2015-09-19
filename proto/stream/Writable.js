@@ -28,5 +28,5 @@ function onceFinish(){
   this[resolver].accept();
 }
 
-if(global.process)
-require('str' + 'eam').Writable.prototype[define](getter,module.exports,{writable: true, configurable: true});
+if(global.process && !require('str' + 'eam').Writable.prototype.hasOwnProperty(getter))
+require('str' + 'eam').Writable.prototype[define](getter,module.exports,{writable: true});

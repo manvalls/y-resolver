@@ -59,4 +59,5 @@ function race(res,errors,c,ctx,i){
 
 }
 
-Object.prototype[define](getter,module.exports,{writable: true, configurable: true});
+if(!Object.prototype.hasOwnProperty(getter))
+Object.prototype[define](getter,module.exports,{writable: true});

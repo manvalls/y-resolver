@@ -45,5 +45,5 @@ function onceEnd(){
   this[resolver].accept(this[str] == null ? Buffer.concat(this[parts]) : this[str]);
 }
 
-if(global.process)
-require('str' + 'eam').Readable.prototype[define](getter,module.exports,{writable: true, configurable: true});
+if(global.process && !require('str' + 'eam').Readable.prototype.hasOwnProperty(getter))
+require('str' + 'eam').Readable.prototype[define](getter,module.exports,{writable: true});

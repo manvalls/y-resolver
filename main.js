@@ -46,12 +46,12 @@ Resolver.all = all;
 
 /*/ imports /*/
 
-Setter = require('y-setter');
 require('./proto/Object.js');
 require('./proto/Array.js');
 require('./proto/Promise.js');
 require('./proto/stream/Readable.js');
 require('./proto/stream/Writable.js');
+Setter = require('y-setter');
 
 /*/ ******* /*/
 
