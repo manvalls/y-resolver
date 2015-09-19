@@ -438,6 +438,12 @@ test('proto',function*(){
     isAccepted(yd);
   });
 
+  test('Yielded.get(Object.create(null))',function*(){
+    var obj = Object.create(null);
+
+    assert.strictEqual(yield Yielded.get(obj),obj);
+  });
+
   yield test('stream.Writable',function*(){
     var ws = fs.createWriteStream('./foo/bar'),
         yd = Yielded.get(ws),
@@ -471,6 +477,13 @@ test('proto',function*(){
     isNotDone(yd);
     yd.listen(cb = Cb()),yield cb;
     value(yd,'bar');
+
+    ws = fs.createReadStream('foo');
+    yd = Yielded.get(ws);
+
+    isNotDone(yd);
+    yd.listen(cb = Cb()),yield cb;
+    assert.strictEqual(yd.value.toString(),'bar');
   });
 
   fs.unlinkSync('foo');
