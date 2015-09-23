@@ -257,9 +257,7 @@ function all(it){
     getYielded(yd).listen(raceIt,[ctx,res,ctx.remaining - 2]);
   }
 
-  ctx.remaining--;
-  if(ctx.result.length == ctx.remaining) res.accept(ctx.result);
-
+  if(!--ctx.remaining) res.accept(ctx.result);
   return res.yielded;
 }
 
