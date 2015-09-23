@@ -247,6 +247,7 @@ function race(it){
 function all(it){
   var res = new Resolver(),
       ctx = {},
+      i = 0,
       yd;
 
   ctx.remaining = 1;
@@ -254,7 +255,8 @@ function all(it){
 
   for(yd of it){
     ctx.remaining++;
-    getYielded(yd).listen(raceIt,[ctx,res,ctx.remaining - 2]);
+    getYielded(yd).listen(raceIt,[ctx,res,i]);
+    i++;
   }
 
   if(!--ctx.remaining) res.accept(ctx.result);

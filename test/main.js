@@ -358,6 +358,15 @@ test('Resolver.all()',function(){
   r1.reject(obj1);
   assert.strictEqual(all.error,obj1);
 
+  r2 = new Resolver();
+  y1 = Resolver.accept('foo');
+  y2 = r2.yielded;
+  all = Resolver.all([y1,y2]);
+
+  assert(!all.done);
+  r2.accept('bar');
+  assert(all.done);
+  assert.deepEqual(all.value,['foo','bar']);
 });
 
 test('proto',function*(){
@@ -372,6 +381,7 @@ test('proto',function*(){
         obj2 = {};
 
     r2.accept(obj2);
+    assert(!all.done);
     r1.accept(obj1);
     assert.deepEqual(all.value,[obj1,obj2]);
 
@@ -386,6 +396,16 @@ test('proto',function*(){
     r2.accept('foo');
     assert.strictEqual(all.error.errors[0],obj1);
     assert.strictEqual(all.error.values[1],'foo');
+
+    r2 = new Resolver();
+    y1 = Resolver.accept('foo');
+    y2 = r2.yielded;
+    all = Yielded.get([y1,y2]);
+
+    assert(!all.done);
+    r2.accept('bar');
+    assert(all.done);
+    assert.deepEqual(all.value,['foo','bar']);
   });
 
   test('Object',function(){
