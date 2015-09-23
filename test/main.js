@@ -344,6 +344,7 @@ test('Resolver.all()',function(){
       obj2 = {};
 
   r2.accept(obj2);
+  assert(!all.done);
   r1.accept(obj1);
   assert.deepEqual(all.value,[obj1,obj2]);
 

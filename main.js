@@ -269,7 +269,7 @@ function raceIt(ctx,res,i){
 
   if(this.accepted){
     ctx.result[i] = this.value;
-    if(ctx.result.length == ctx.remaining) res.accept(ctx.result);
+    if(!--ctx.remaining) res.accept(ctx.result);
   }else res.reject(this.error);
 
 }
