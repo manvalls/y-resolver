@@ -173,6 +173,7 @@ Yielded.prototype[define]({
     return d;
   },
 
+  call: require('./Yielded/call.js'),
   then: require('./Yielded/then.js')
 
 });

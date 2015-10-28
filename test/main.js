@@ -510,3 +510,18 @@ test('proto',function*(){
   fs.unlinkSync('foo');
 
 });
+
+test('yd.call()',function*(){
+  var yd = Resolver.accept((n1,n2) => n1 + n2),
+      ok;
+
+  assert.equal(yield yd.call(1,2),3);
+  yd = Resolver.reject();
+
+  try{
+    yield yd.call('foo');
+    ok = true;
+  }catch(e){}
+
+  assert(!ok);
+});
