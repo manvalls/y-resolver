@@ -4,17 +4,17 @@
   "description": "A backwards compatible extension to the Promises/A+ spec",
   "main": "main.js",
   "dependencies": {
-    "y-setter": "",
-    "y-timers": "",
-    "u-proto": "",
-    "detacher": ""
+    "detacher": "^1.4.0",
+    "u-proto": "^5.4.0",
+    "y-setter": "^4.1.0",
+    "y-timers": "^1.1.0"
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
     "istanbul": "^0.3.19",
     "promises-aplus-tests": "^2.1.1",
-    "u-test": "",
-    "y-callback": ""
+    "u-test": "^2.2.3",
+    "y-callback": "^1.2.1"
   },
   "scripts": {
     "test": "bash test.sh"
