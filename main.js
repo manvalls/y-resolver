@@ -18,6 +18,7 @@ var define = require('u-proto/define'),
     getter =    '4siciY0dau6kkit',
     deferrer =  '1KlIC6JgRPjS0vm',
 
+    stackSize = 0,
     Setter,bag;
 
 // Resolver
@@ -107,8 +108,18 @@ function callCb(args,yd){
       ag = args[1] || [],
       th = args[2] || yd;
 
+  if(!stackSize) setTimeout(resetStackSize,0);
+  stackSize++;
+  if(stackSize > 500) return setTimeout(callCb,0,args,yd);
+
   try{ cb.apply(th,ag); }
   catch(e){ setTimeout(throwError,0,e); }
+
+  stackSize--;
+}
+
+function resetStackSize(){
+  stackSize = 0;
 }
 
 function throwError(e){

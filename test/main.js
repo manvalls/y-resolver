@@ -4,6 +4,7 @@ var Resolver = require('../main.js'),
     assert = require('assert'),
     Cb = require('y-callback'),
     Setter = require('y-setter'),
+    wait = require('y-timers/wait'),
     domain = require('domain'),
     fs = require('fs'),
 
@@ -524,4 +525,18 @@ test('yd.call()',function*(){
   }catch(e){}
 
   assert(!ok);
+});
+
+test('Max stack size',function*(){
+  var k = 0;
+
+  function count(){
+    k++;
+    if(k < 600) Resolver.accept().listen(count);
+  }
+
+  count();
+  assert(k < 600);
+  yield wait(100);
+  assert.strictEqual(k,600);
 });
