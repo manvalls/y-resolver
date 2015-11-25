@@ -10,14 +10,12 @@
     "y-timers": "^1.1.0"
   },
   "devDependencies": {
-    "coveralls": "^2.11.4",
-    "istanbul": "^0.3.19",
     "promises-aplus-tests": "^2.1.1",
-    "u-test": "^2.2.3",
+    "u-test": "^3.1.7",
     "y-callback": "^1.2.1"
   },
   "scripts": {
-    "test": "bash test.sh"
+    "test": "u-test"
   },
   "repository": {
     "type": "git",
@@ -26,6 +24,6 @@
   "bugs": {
     "url": "https://github.com/manvalls/y-resolver/issues"
   },
-  "author": "Manuel Valls Fernández <manolo@chatiku.com>",
+  "author": "Manuel Valls Fernández <manolo@vlrz.es>",
   "license": "LGPL-3.0"
 }
