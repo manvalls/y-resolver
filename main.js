@@ -97,9 +97,7 @@ Resolver.prototype[define](bag = {
 
   },
 
-  bind: require('./Resolver/bind.js'),
-
-  ['3asKNsYzcdGduft']: 51
+  bind: require('./Resolver/bind.js')
 
 });
 
@@ -187,7 +185,8 @@ Yielded.prototype[define]({
   },
 
   call: require('./Yielded/call.js'),
-  then: require('./Yielded/then.js')
+  then: require('./Yielded/then.js'),
+  ['3asKNsYzcdGduft']: 51
 
 });
 
