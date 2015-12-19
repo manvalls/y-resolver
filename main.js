@@ -103,7 +103,8 @@ Resolver.prototype[define](bag = {
 
   },
 
-  bind: require('./Resolver/bind.js')
+  bind: require('./Resolver/bind.js'),
+  ['3asKNsYzcdGduft']: 52
 
 });
 
