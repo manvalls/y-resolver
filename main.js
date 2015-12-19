@@ -228,8 +228,8 @@ function HybridYielded(){
 
 HybridYielded.prototype = Object.create(Yielded.prototype);
 HybridYielded.prototype[define]('constructor',HybridYielded);
-HybridYielded.prototype[define](bag);
 HybridYielded.prototype[define]('3asKNsYzcdGduft',53);
+HybridYielded.prototype[define](bag);
 
 // utils
 
