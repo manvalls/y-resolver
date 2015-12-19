@@ -9,6 +9,7 @@ var define = require('u-proto/define'),
     error = Symbol(),
 
     yielded = Symbol(),
+    resolver = Symbol(),
     listeners = Symbol(),
     count = Symbol(),
 
@@ -22,8 +23,13 @@ var define = require('u-proto/define'),
 
 // Resolver
 
-function Resolver(counter){
-  this[yielded] = new Yielded(null,counter);
+function Resolver(res,yd){
+
+  if(res){
+    this[resolver] = res;
+    this[yielded] = yd;
+  }else this[yielded] = new Yielded();
+
 }
 
 /*/ exports /*/
@@ -59,10 +65,11 @@ Resolver.prototype[define](bag = {
   get yielded(){ return this[yielded]; },
 
   accept: function(data){
-    var yd = this[yielded],
-        ls = yd[listeners],
-        args;
+    var yd,ls,args;
 
+    if(this[resolver]) return this[resolver].accept(data);
+    yd = this[yielded];
+    ls = yd[listeners];
     if(yd[done]) return;
 
     yd[done] = true;
@@ -77,10 +84,11 @@ Resolver.prototype[define](bag = {
   },
 
   reject: function(e){
-    var yd = this[yielded],
-        ls = yd[listeners],
-        args;
+    var yd,ls,args;
 
+    if(this[resolver]) return this[resolver].reject(e);
+    yd = this[yielded];
+    ls = yd[listeners];
     if(yd[done]) return;
     yd[timeout] = setTimeout(throwError,0,e);
 
@@ -126,7 +134,7 @@ function throwError(e){
 
 // Yielded
 
-function Yielded(prop,counter){
+function Yielded(prop){
 
   if(this[listeners]) return;
 
@@ -141,7 +149,7 @@ function Yielded(prop,counter){
 
   this[listeners] = new Set();
 
-  this[count] = counter || new Setter();
+  this[count] = new Setter();
   if(this[count].value == null) this[count].value = 0;
 
 }

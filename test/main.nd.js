@@ -223,25 +223,6 @@ test('Basic',function(){
     res.accept();
     assert.strictEqual(yd.listeners.value,0);
 
-    c = new Setter();
-    res = new Resolver(c);
-    res2 = new Resolver(c);
-
-    yd = res.yielded;
-    yd2 = res2.yielded;
-
-    d = yd.listen(function(){});
-    yd2.listen(function(){});
-    yd.listen(function(){});
-
-    assert.strictEqual(yd.listeners.value,3);
-    assert.strictEqual(yd2.listeners.value,3);
-    d.detach();
-    assert.strictEqual(yd.listeners.value,2);
-    assert.strictEqual(yd2.listeners.value,2);
-    res.accept();
-    assert.strictEqual(yd.listeners.value,1);
-
   });
 
   test('\'resolver\' property',function(){
@@ -539,4 +520,17 @@ test('Max stack size',function*(){
   assert(k < 600);
   yield wait(100);
   assert.strictEqual(k,600);
+});
+
+test('Delegation',function*(){
+  var r1 = new Resolver(),
+      r2 = new Resolver(),
+      r3 = new Resolver(r1,r2.yielded);
+
+  r3.accept('foo');
+  assert.strictEqual(r1.yielded.value,'foo');
+  assert(!r3.yielded.done);
+
+  r2.accept('bar');
+  assert.strictEqual(r3.yielded.value,'bar');
 });
