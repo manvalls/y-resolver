@@ -4,10 +4,8 @@ var Resolver = require('../main.js'),
 
 // Promises/A+ spec
 
-Resolver.doNotThrow = true;
-
 adapter.resolved = Resolver.accept;
-adapter.rejected = Resolver.reject;
+adapter.rejected = e => Resolver.reject(e,true);
 
 adapter.deferred = function(){
   var res = new Resolver();
@@ -15,7 +13,7 @@ adapter.deferred = function(){
   return {
     promise: res.yielded,
     resolve: function(v){ res.accept(v); },
-    reject: function(e){ res.reject(e); }
+    reject: function(e){ res.reject(e,true); }
   };
 };
 

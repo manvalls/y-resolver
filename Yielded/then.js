@@ -17,7 +17,7 @@ function handleThen(onFulfilled,onRejected,r){
     else r.accept(this.value);
   }else{
     if(typeof onRejected == 'function') tick().listen(call,[onRejected,this.error,r,this]);
-    else r.reject(this.error);
+    else r.reject(this.error,true);
   }
 
 }
@@ -29,7 +29,7 @@ function call(f,arg,r){
   try{
 
     v = f(arg);
-    if(v == r.yielded) return r.reject(new TypeError());
+    if(v == r.yielded) return r.reject(new TypeError(),true);
 
     try{
 
@@ -50,18 +50,18 @@ function call(f,arg,r){
           if(ignore) return;
           ignore = true;
 
-          r.reject(error);
+          r.reject(error,true);
 
         });
 
         return;
       }
 
-    }catch(e){ return ignore ? null : r.reject(e); }
+    }catch(e){ return ignore ? null : r.reject(e,true); }
 
     r.accept(v);
 
-  }catch(e){ r.reject(e); }
+  }catch(e){ r.reject(e,true); }
 
 }
 

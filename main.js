@@ -83,14 +83,14 @@ Resolver.prototype[define](bag = {
 
   },
 
-  reject: function(e){
+  reject: function(e,doNotThrow){
     var yd,ls,args;
 
-    if(this[resolver]) return this[resolver].reject(e);
+    if(this[resolver]) return this[resolver].reject(e,doNotThrow);
     yd = this[yielded];
     ls = yd[listeners];
     if(yd[done]) return;
-    yd[timeout] = setTimeout(throwError,0,e);
+    if(!doNotThrow) yd[timeout] = setTimeout(throwError,0,e);
 
     yd[done] = true;
     yd[rejected] = true;
@@ -129,7 +129,7 @@ function resetStackSize(){
 }
 
 function throwError(e){
-  if(!Resolver.doNotThrow) throw e;
+  throw e;
 }
 
 // Yielded
@@ -247,10 +247,10 @@ function accept(v){
   return resolver.yielded;
 }
 
-function reject(e){
+function reject(e,doNotThrow){
   var resolver = new Resolver();
 
-  resolver.reject(e);
+  resolver.reject(e,doNotThrow);
   return resolver.yielded;
 }
 
