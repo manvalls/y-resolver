@@ -16,7 +16,6 @@ var define = require('u-proto/define'),
 
     isYielded = '2Alqg4pLDZMZl8Y',
     getter =    '4siciY0dau6kkit',
-    deferrer =  '1KlIC6JgRPjS0vm',
 
     stackSize = 0,
     Setter,bag;
@@ -36,7 +35,6 @@ Resolver.Hybrid = HybridYielded;
 Yielded.get = getYielded;
 Yielded.is = isYieldedFunc;
 Yielded.getter = getter;
-Yielded.deferrer = deferrer;
 
 Resolver.accept = accept;
 Resolver.reject = reject;
@@ -201,8 +199,7 @@ function getYielded(obj){
   while(!(obj && obj[isYielded])){
     if(!obj) return accept(obj);
 
-    if(obj[deferrer]) obj = obj[deferrer]();
-    else if(obj[getter]) obj = obj[getter]();
+    if(obj[getter]) obj = obj[getter]();
     else return accept(obj);
   }
 
