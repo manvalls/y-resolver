@@ -44,8 +44,6 @@ Yielded.getter = getter;
 
 Resolver.accept = accept;
 Resolver.reject = reject;
-Resolver.chain = chain;
-
 Resolver.race = race;
 Resolver.all = all;
 
@@ -232,15 +230,6 @@ HybridYielded.prototype[define]('3asKNsYzcdGduft',53);
 HybridYielded.prototype[define](bag);
 
 // utils
-
-function chain(){
-  var last = arguments[arguments.length - 1][yielded],
-      i;
-
-  arguments[arguments.length - 1][yielded] = arguments[0][yielded];
-  for(i = 0;i < arguments.length - 2;i++) arguments[i][yielded] = arguments[i + 1][yielded];
-  arguments[arguments.length - 2][yielded] = last;
-}
 
 function accept(v){
   var resolver = new Resolver();
