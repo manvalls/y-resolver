@@ -7,6 +7,7 @@ var define = require('u-proto/define'),
     fromPromise = require('./Promise.js'),
 
     getter = Resolver.Yielded.getter,
+    getYd = Resolver.Yielded.get,
     race;
 
 module.exports = function(){
@@ -32,7 +33,7 @@ module.exports = function(){
   for(j = 0;j < keys.length;j++){
     i = keys[j];
     c.add(
-      this[i].listen(race,[res,errors,c,ctx,i])
+      getYd(this[i]).listen(race,[res,errors,c,ctx,i])
     );
   }
 

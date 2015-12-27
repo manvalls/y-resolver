@@ -2,6 +2,7 @@ var define = require('u-proto/define'),
 
     Resolver = require('../main.js'),
     getter = Resolver.Yielded.getter,
+    getYd = Resolver.Yielded.get,
     run;
 
 module.exports = function(){
@@ -16,7 +17,7 @@ module.exports = function(){
     remaining: this.length
   };
 
-  for(i = 0;i < this.length;i++) this[i].listen(run,[res,arr,errors,ctx,i]);
+  for(i = 0;i < this.length;i++) getYd(this[i]).listen(run,[res,arr,errors,ctx,i]);
   return res.yielded;
 };
 
