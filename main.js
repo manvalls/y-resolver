@@ -219,15 +219,32 @@ function isYieldedFunc(yd){
 
 // Hybrid
 
-function HybridYielded(){
-  this[yielded] = this;
-  Yielded.call(this);
+function HybridYielded(res){
+  res = res || new Resolver();
+  this[resolver] = res;
+  this[yielded] = res.yielded;
 }
 
 HybridYielded.prototype = Object.create(Yielded.prototype);
 HybridYielded.prototype[define]('constructor',HybridYielded);
 HybridYielded.prototype[define]('3asKNsYzcdGduft',53);
 HybridYielded.prototype[define](bag);
+
+HybridYielded.prototype[define]({
+
+  get listeners(){ return this[yielded].listeners; },
+  get done(){ return this[yielded].done; },
+  get accepted(){ return this[yielded].accepted; },
+  get rejected(){ return this[yielded].rejected; },
+  get value(){ return this[yielded].value; },
+  get error(){ return this[yielded].error; },
+  listen: function(func,args,thisArg){
+    args = args || [];
+    thisArg = thisArg || this;
+    return this[yielded].listen(func,args,thisArg);
+  }
+
+});
 
 // utils
 

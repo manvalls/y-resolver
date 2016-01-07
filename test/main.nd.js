@@ -1,6 +1,7 @@
 var Resolver = require('../main.js'),
     test = require('u-test'),
     Yielded = Resolver.Yielded,
+    Hybrid = Resolver.Hybrid,
     assert = require('assert'),
     Cb = require('y-callback'),
     Setter = require('y-setter'),
@@ -160,17 +161,17 @@ function value(yd,value){
 test('Basic',function(){
 
   test('Accept',function(){
-    var res = new Resolver(),
+    var res = new Hybrid(),
         obj = {};
 
-    listenAccepted(res.yielded,obj);
-    isNotDone(res.yielded);
-    value(res.yielded,undefined);
-    error(res.yielded,undefined);
+    listenAccepted(res,obj);
+    isNotDone(res);
+    value(res,undefined);
+    error(res,undefined);
     res.accept(obj);
-    isAccepted(res.yielded);
-    value(res.yielded,obj);
-    error(res.yielded,undefined);
+    isAccepted(res);
+    value(res,obj);
+    error(res,undefined);
 
   });
 
@@ -190,12 +191,12 @@ test('Basic',function(){
   });
 
   test('Bind',function(){
-    var res = new Resolver(),
+    var res = new Hybrid(),
         res2 = new Resolver(),
         yd = res2.yielded,
         obj = {};
 
-    res2.bind(res.yielded);
+    res2.bind(res);
 
     isNotDone(yd);
     error(yd,undefined);
@@ -209,8 +210,8 @@ test('Basic',function(){
   });
 
   test('Listeners',function(){
-    var res = new Resolver(),
-        yd = res.yielded,
+    var res = new Hybrid(),
+        yd = res,
         d,res2,c,yd2;
 
     d = yd.listen(function(){});
