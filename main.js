@@ -1,5 +1,4 @@
 var define = require('u-proto/define'),
-    Detacher = require('detacher'),
 
     done = Symbol(),
     accepted = Symbol(),
@@ -19,7 +18,7 @@ var define = require('u-proto/define'),
     getter =    '4siciY0dau6kkit',
 
     stackSize = 0,
-    Setter,bag;
+    Setter,Detacher,bag;
 
 // Resolver
 
@@ -55,6 +54,7 @@ require('./proto/Promise.js');
 require('./proto/stream/Readable.js');
 require('./proto/stream/Writable.js');
 Setter = require('y-setter');
+Detacher = require('detacher');
 
 /*/ ******* /*/
 
