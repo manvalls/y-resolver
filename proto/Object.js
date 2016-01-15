@@ -1,5 +1,4 @@
 var define = require('u-proto/define'),
-    Collection = require('detacher/collection'),
 
     Resolver = require('../main.js'),
     fromReadableStream = require('./stream/Readable.js'),
@@ -8,7 +7,7 @@ var define = require('u-proto/define'),
 
     getter = Resolver.Yielded.getter,
     getYd = Resolver.Yielded.get,
-    race;
+    Collection,race;
 
 module.exports = function(){
   var c = new Collection(),
@@ -62,3 +61,4 @@ function race(res,errors,c,ctx,i){
 
 if(!Object.prototype.hasOwnProperty(getter))
 Object.prototype[define](getter,module.exports,{writable: true});
+Collection = require('detacher/collection');

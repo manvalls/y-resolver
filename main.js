@@ -48,11 +48,11 @@ Resolver.all = all;
 
 /*/ imports /*/
 
-require('./proto/Object.js');
 require('./proto/Array.js');
 require('./proto/Promise.js');
 require('./proto/stream/Readable.js');
 require('./proto/stream/Writable.js');
+require('./proto/Object.js');
 Setter = require('y-setter');
 Detacher = require('detacher');
 
