@@ -7,10 +7,10 @@ var define = require('u-proto/define'),
 
     getter = Resolver.Yielded.getter,
     getYd = Resolver.Yielded.get,
-    Collection,race;
+    Detacher,race;
 
 module.exports = function(){
-  var c = new Collection(),
+  var c = new Detacher(),
       keys,ctx,i,j,res,errors;
 
   if(typeof this.toPromise == 'function') return fromPromise.call(this.toPromise());
@@ -61,4 +61,4 @@ function race(res,errors,c,ctx,i){
 
 if(!Object.prototype.hasOwnProperty(getter))
 Object.prototype[define](getter,module.exports,{writable: true});
-Collection = require('detacher/collection');
+Detacher = require('detacher');
