@@ -14,8 +14,9 @@ var define = require('u-proto/define'),
 
     timeout = Symbol(),
 
-    isYielded = '2Alqg4pLDZMZl8Y',
-    getter =    '4siciY0dau6kkit',
+    isYielded =   '2Alqg4pLDZMZl8Y',
+    isResolver =  '2C5lbcGski3ClF6',
+    getter =      '4siciY0dau6kkit',
 
     stackSize = 0,
     Setter,Detacher,bag;
@@ -41,6 +42,7 @@ Yielded.get = getYielded;
 Yielded.is = isYieldedFunc;
 Yielded.getter = getter;
 
+Resolver.is = isResolverFunc;
 Resolver.accept = accept;
 Resolver.reject = reject;
 Resolver.race = race;
@@ -102,6 +104,7 @@ Resolver.prototype[define](bag = {
   },
 
   bind: require('./Resolver/bind.js'),
+  [isResolver]: true,
   ['3asKNsYzcdGduft']: 52
 
 });
@@ -153,7 +156,6 @@ function Yielded(prop){
 
 }
 
-Yielded.prototype[define](isYielded,true);
 Yielded.prototype[define]({
 
   get listeners(){ return this[count].getter; },
@@ -191,6 +193,7 @@ Yielded.prototype[define]({
 
   call: require('./Yielded/call.js'),
   then: require('./Yielded/then.js'),
+  [isYielded]: true,
   ['3asKNsYzcdGduft']: 51
 
 });
@@ -215,6 +218,10 @@ function getYielded(obj){
 
 function isYieldedFunc(yd){
   return yd && yd[isYielded];
+}
+
+function isResolverFunc(res){
+  return res && res[isResolver];
 }
 
 // Hybrid

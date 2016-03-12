@@ -164,6 +164,7 @@ test('Basic',function(){
     var res = new Hybrid(),
         obj = {};
 
+    assert(Resolver.is(res));
     listenAccepted(res,obj);
     isNotDone(res);
     value(res,undefined);
