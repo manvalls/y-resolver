@@ -23,13 +23,18 @@ module.exports = function(){
   return this[resolver].yielded;
 };
 
+function concat(parts){
+  if(parts.length) return parts[0].constructor.concat(parts);
+  return '';
+}
+
 function onData(chunk){
   if(this.maxSize != null && this[size] + chunk.length > this.maxSize) return;
 
   this[size] += chunk.length;
 
   if(this[str] != null) this[str] += chunk;
-  else if(typeof chunk == 'string') this[str] = Buffer.concat(this[parts]).toString() + chunk;
+  else if(typeof chunk == 'string') this[str] = concat(this[parts]).toString() + chunk;
   else this[parts].push(chunk);
 }
 
@@ -42,7 +47,7 @@ function onceError(e){
 function onceEnd(){
   this.removeListener('error',onceError);
   this.removeListener('data',onData);
-  this[resolver].accept(this[str] == null ? Buffer.concat(this[parts]) : this[str]);
+  this[resolver].accept(this[str] == null ? concat(this[parts]) : this[str]);
 }
 
 if(global.process && !require('str' + 'eam').Readable.prototype.hasOwnProperty(getter))
