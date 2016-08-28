@@ -1,8 +1,6 @@
 var Detacher = require('detacher');
 
 function resolve(res,yd,d){
-  if(!d.active) return;
-  
   if(yd.accepted) res.accept(yd.value);
   else res.reject(yd.error);
 }
@@ -10,9 +8,11 @@ function resolve(res,yd,d){
 function bind(yd){
   var d = new Detacher();
 
-  if(yd.done) resolve(this,yd,d);
-  else yd.listen(resolve,[this,yd,d]);
+  d.add(
+    yd.listen(resolve,[this,yd,d])
+  );
 
+  this.yielded.listen(d.detach,[],d);
   return d;
 }
 
