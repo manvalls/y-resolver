@@ -508,3 +508,15 @@ test('Delegation',function*(){
   r2.accept('bar');
   assert.strictEqual(r3.yielded.value,'bar');
 });
+
+test('yd.get',function*(){
+  var r = new Resolver();
+
+  r.accept(42);
+
+  assert.strictEqual(r.yielded.get('done').value,true);
+  assert.strictEqual(r.yielded.get('accepted').value,true);
+  assert.strictEqual(r.yielded.get('rejected').value,false);
+  assert.strictEqual(r.yielded.get('value').value,42);
+
+});

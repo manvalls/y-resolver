@@ -193,6 +193,7 @@ Yielded.prototype[define]({
 
   call: require('./Yielded/call.js'),
   then: require('./Yielded/then.js'),
+  get: require('./Yielded/get.js'),
   [isYielded]: true,
   ['3asKNsYzcdGduft']: 51
 
