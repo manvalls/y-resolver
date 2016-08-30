@@ -7,6 +7,7 @@ var Resolver = require('../main.js'),
     Setter = require('y-setter'),
     wait = require('y-timers/wait'),
     domain = require('domain'),
+    Detacher = require('detacher'),
     fs = require('fs'),
 
     adapter = {};
@@ -510,7 +511,8 @@ test('Delegation',function*(){
 });
 
 test('yd.get',function*(){
-  var r = new Resolver();
+  var r = new Resolver(),
+      d,g;
 
   r.accept(42);
 
@@ -519,4 +521,12 @@ test('yd.get',function*(){
   assert.strictEqual(r.yielded.get('rejected').value,false);
   assert.strictEqual(r.yielded.get('value').value,42);
 
+  r = new Resolver();
+  d = new Detacher();
+
+  g = r.yielded.get('done',d);
+  d.detach();
+
+  assert.strictEqual(g.value,false);
+  yield g.frozen();
 });
