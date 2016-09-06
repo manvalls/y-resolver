@@ -3,7 +3,8 @@ var define = require('u-proto/define'),
 
     resolver = Symbol(),
 
-    getter = Resolver.Yielded.getter;
+    getter = Resolver.Yielded.getter,
+    rq = require;
 
 
 module.exports = function(){
@@ -28,5 +29,5 @@ function onceFinish(){
   this[resolver].accept();
 }
 
-if(global.process && !require('str' + 'eam').Writable.prototype.hasOwnProperty(getter))
-require('str' + 'eam').Writable.prototype[define](getter,module.exports,{writable: true});
+if(global.process && !rq('stream').Writable.prototype.hasOwnProperty(getter))
+rq('stream').Writable.prototype[define](getter,module.exports,{writable: true});

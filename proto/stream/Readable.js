@@ -6,7 +6,8 @@ var define = require('u-proto/define'),
     str = Symbol(),
     size = Symbol(),
 
-    getter = Resolver.Yielded.getter;
+    getter = Resolver.Yielded.getter,
+    rq = require;
 
 module.exports = function(){
 
@@ -50,5 +51,5 @@ function onceEnd(){
   this[resolver].accept(this[str] == null ? concat(this[parts]) : this[str]);
 }
 
-if(global.process && !require('str' + 'eam').Readable.prototype.hasOwnProperty(getter))
-require('str' + 'eam').Readable.prototype[define](getter,module.exports,{writable: true});
+if(global.process && !rq('stream').Readable.prototype.hasOwnProperty(getter))
+rq('stream').Readable.prototype[define](getter,module.exports,{writable: true});
