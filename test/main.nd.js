@@ -8,9 +8,7 @@ var Resolver = require('../main.js'),
     wait = require('y-timers/wait'),
     domain = require('domain'),
     Detacher = require('detacher'),
-    fs = require('fs'),
-
-    adapter = {};
+    fs = require('fs');
 
 function listenOk(yd,accepted,reason){
   var obj1 = {},
@@ -408,7 +406,7 @@ test('proto',function*(){
     yd.listen(cb = Cb()),yield cb;
     isRejected(yd);
 
-    p = Promise.accept();
+    p = Promise.resolve();
     yd = Yielded.get(p);
 
     isNotDone(yd);

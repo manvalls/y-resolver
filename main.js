@@ -11,6 +11,7 @@ var define = require('u-proto/define'),
     resolver = Symbol(),
     listeners = Symbol(),
     count = Symbol(),
+    col = Symbol(),
 
     timeout = Symbol(),
 
@@ -78,8 +79,11 @@ Resolver.prototype[define](bag = {
 
     for(args of ls){
       callCb(args,yd);
-      detach(args,yd);
+      detachCb(args,yd);
     }
+
+    for(d of yd[col]) detach(d);
+    yd[col].clear();
 
   },
 
@@ -98,8 +102,11 @@ Resolver.prototype[define](bag = {
 
     for(args of ls){
       callCb(args,yd);
-      detach(args,yd);
+      detachCb(args,yd);
     }
+
+    for(d of yd[col]) detach(d);
+    yd[col].clear();
 
   },
 
@@ -126,6 +133,20 @@ function callCb(args,yd){
   stackSize--;
 }
 
+function detach(d){
+  d = d || {};
+
+  if(d.detach) return d.detach();
+  if(d.disconnect) return d.disconnect();
+  if(d.close) return d.close();
+  if(d.kill) return d.kill();
+  if(d.pause) return d.pause();
+  if(d.freeze) return d.freeze();
+  if(d.accept) return d.accept();
+  if(d.reject) return d.reject();
+
+}
+
 function resetStackSize(){
   stackSize = 0;
 }
@@ -149,6 +170,7 @@ function Yielded(prop){
   this[accepted] = false;
   this[rejected] = false;
 
+  this[col] = new Set();
   this[listeners] = new Set();
 
   this[count] = new Setter();
@@ -179,7 +201,7 @@ Yielded.prototype[define]({
   },
 
   listen: function(){
-    var d = new Detacher(detach,[arguments,this]);
+    var d = new Detacher(detachCb,[arguments,this]);
 
     if(this[done]){
       callCb(arguments,this);
@@ -189,6 +211,30 @@ Yielded.prototype[define]({
     this[listeners].add(arguments);
     this[count].value++;
     return d;
+  },
+
+  add: function(){
+    var d;
+
+    if(this[done]){
+      for(d of arguments) detach(d);
+      return;
+    }
+
+    for(d of arguments){
+      this[col].add(d);
+
+      if(Resolver.Yielded.is(d)) d.listen(this[col].delete,[d],this[col]);
+      else if(Resolver.is(d)) d.yielded.listen(this[col].delete,[d],this[col]);
+      else if(Setter.Getter.is(d)) d.frozen().listen(this[col].delete,[d],this[col]);
+      else if(Setter.is(d)) d.getter.frozen().listen(this[col].delete,[d],this[col]);
+    }
+
+  },
+
+  remove: function(){
+    var d;
+    for(d of arguments) this[col].delete(d);
   },
 
   call: require('./Yielded/call.js'),
@@ -201,7 +247,7 @@ Yielded.prototype[define]({
 
 // - utils
 
-function detach(args,yd){
+function detachCb(args,yd){
   if(yd[listeners].delete(args)) yd[count].value--;
 }
 
@@ -296,8 +342,6 @@ function all(it){
   if(!--ctx.remaining) res.accept(ctx.result);
   return res.yielded;
 }
-
-// - utils
 
 function raceIt(ctx,res,i){
 
