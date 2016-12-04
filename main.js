@@ -49,6 +49,8 @@ Resolver.reject = reject;
 Resolver.race = race;
 Resolver.all = all;
 
+Resolver.defer = require('./Resolver/defer');
+
 /*/ imports /*/
 
 require('./proto/Array.js');
