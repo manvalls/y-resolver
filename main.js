@@ -10,6 +10,7 @@ var define = require('u-proto/define'),
     yielded = Symbol(),
     resolver = Symbol(),
     listeners = Symbol(),
+    throws = Symbol(),
     count = Symbol(),
     col = Symbol(),
 
@@ -67,13 +68,15 @@ Resolver.prototype[define](bag = {
 
   get yielded(){ return this[yielded]; },
 
-  accept: function(data){
+  accept: function(data,doNotThrow){
     var yd,ls,args;
 
     if(this[resolver]) return this[resolver].accept(data);
     yd = this[yielded];
     ls = yd[listeners];
     if(yd[done]) return;
+
+    if(doNotThrow) yd.throws = false;
 
     yd[done] = true;
     yd[accepted] = true;
@@ -96,7 +99,9 @@ Resolver.prototype[define](bag = {
     yd = this[yielded];
     ls = yd[listeners];
     if(yd[done]) return;
-    if(!doNotThrow) yd[timeout] = setTimeout(throwError,0,e);
+
+    if(doNotThrow) yd.throws = false;
+    if(yd.throws) yd[timeout] = setTimeout(throwError,0,e);
 
     yd[done] = true;
     yd[rejected] = true;
@@ -171,6 +176,7 @@ function Yielded(prop){
   this[done] = false;
   this[accepted] = false;
   this[rejected] = false;
+  this[throws] = true;
 
   this[col] = new Set();
   this[listeners] = new Set();
@@ -181,6 +187,15 @@ function Yielded(prop){
 }
 
 Yielded.prototype[define]({
+
+  get throws(){
+    return this[throws];
+  },
+
+  set throws(value){
+    if(this[done]) return;
+    this[throws] = !!value;
+  },
 
   get listeners(){ return this[count].getter; },
 
@@ -304,10 +319,10 @@ HybridYielded.prototype[define]({
 
 // utils
 
-function accept(v){
+function accept(v,doNotThrow){
   var resolver = new Resolver();
 
-  resolver.accept(v);
+  resolver.accept(v,doNotThrow);
   return resolver.yielded;
 }
 

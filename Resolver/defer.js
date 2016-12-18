@@ -6,11 +6,11 @@ class Deferred{
 
   constructor(){
     this[resolver] = new Resolver();
-    this[doNotThrow] = arguments[0];
+    this[resolver].yielded.throws = !(this[doNotThrow] = arguments[0]);
   }
 
   resolve(value){
-    this[resolver].accept(value);
+    this[resolver].accept(value,this[doNotThrow]);
   }
 
   reject(error){

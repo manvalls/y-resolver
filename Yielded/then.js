@@ -14,22 +14,22 @@ function handleThen(onFulfilled,onRejected,r){
 
   if(this.accepted){
     if(typeof onFulfilled == 'function') tick().listen(call,[onFulfilled,this.value,r,this]);
-    else r.accept(this.value);
+    else r.accept(this.value,!this.throws);
   }else{
     if(typeof onRejected == 'function') tick().listen(call,[onRejected,this.error,r,this]);
-    else r.reject(this.error,true);
+    else r.reject(this.error,!this.throws);
   }
 
 }
 
-function call(f,arg,r){
+function call(f,arg,r,yd){
   var ignore = false,
       v,then;
 
   try{
 
     v = f(arg);
-    if(v == r.yielded) return r.reject(new TypeError(),true);
+    if(v == r.yielded) return r.reject(new TypeError(),!yd.throws);
 
     try{
 
@@ -43,25 +43,25 @@ function call(f,arg,r){
           if(ignore) return;
           ignore = true;
 
-          call(PT,value,r);
+          call(PT,value,r,yd);
 
         },function(error){
 
           if(ignore) return;
           ignore = true;
 
-          r.reject(error,true);
+          r.reject(error,!yd.throws);
 
         });
 
         return;
       }
 
-    }catch(e){ return ignore ? null : r.reject(e,true); }
+    }catch(e){ return ignore ? null : r.reject(e,!yd.throws); }
 
-    r.accept(v);
+    r.accept(v,!yd.throws);
 
-  }catch(e){ r.reject(e,true); }
+  }catch(e){ r.reject(e,!yd.throws); }
 
 }
 

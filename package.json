@@ -4,9 +4,9 @@
   "description": "A backwards compatible extension to the Promises/A+ spec",
   "main": "main.js",
   "dependencies": {
-    "detacher": "^2.0.6",
+    "detacher": "^2.0.7",
     "u-proto": "^7.1.2",
-    "y-setter": "^6.13.0",
+    "y-setter": "^6.14.0",
     "y-timers": "^1.1.6"
   },
   "devDependencies": {

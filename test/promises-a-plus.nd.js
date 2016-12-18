@@ -4,7 +4,7 @@ var Resolver = require('../main.js'),
 
 // Promises/A+ spec
 
-adapter.resolved = Resolver.accept;
+adapter.resolved = v => Resolver.accept(v,true);
 adapter.rejected = e => Resolver.reject(e,true);
 adapter.deferred = () => Resolver.defer(true);
 
