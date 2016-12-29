@@ -69,7 +69,7 @@ Resolver.prototype[define](bag = {
   get yielded(){ return this[yielded]; },
 
   accept: function(data,doNotThrow){
-    var yd,ls,args;
+    var yd,ls,args,d;
 
     if(this[resolver]) return this[resolver].accept(data);
     yd = this[yielded];
