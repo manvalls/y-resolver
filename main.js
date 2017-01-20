@@ -15,7 +15,6 @@ var define = require('u-proto/define'),
     col = Symbol(),
 
     timeout = Symbol(),
-    yieldeds = new WeakMap(),
 
     isYielded =   '2Alqg4pLDZMZl8Y',
     isResolver =  '2C5lbcGski3ClF6',
@@ -274,10 +273,8 @@ function getYielded(obj){
   while(!(obj && obj[isYielded])){
     if(!obj) return accept(obj);
 
-    if(obj[getter]){
-      if(!yieldeds.has(obj)) yieldeds.set(obj, obj[getter]());
-      obj = yieldeds.get(obj);
-    }else return accept(obj);
+    if(obj[getter]) obj = obj[getter]();
+    else return accept(obj);
   }
 
   return obj;
