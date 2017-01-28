@@ -49,6 +49,7 @@ Resolver.accept = accept;
 Resolver.reject = reject;
 Resolver.race = race;
 Resolver.all = all;
+Resolver.after = after;
 
 Resolver.defer = require('./Resolver/defer');
 
@@ -60,6 +61,7 @@ require('./proto/stream/Readable.js');
 require('./proto/stream/Writable.js');
 require('./proto/Object.js');
 Setter = require('y-setter');
+Getter = Setter.Getter;
 Detacher = require('detacher');
 
 /*/ ******* /*/
@@ -181,9 +183,6 @@ function Yielded(prop){
   this[col] = new Set();
   this[listeners] = new Set();
 
-  this[count] = new Setter();
-  if(this[count].value == null) this[count].value = 0;
-
 }
 
 Yielded.prototype[define]({
@@ -197,7 +196,7 @@ Yielded.prototype[define]({
     this[throws] = !!value;
   },
 
-  get listeners(){ return this[count].getter; },
+  get listeners(){ return new ListenersGetter(this); },
 
   get done(){ return this[done]; },
 
@@ -226,7 +225,7 @@ Yielded.prototype[define]({
     }
 
     this[listeners].add(arguments);
-    this[count].value++;
+    if(this[count]) this[count].resolve();
     return d;
   },
 
@@ -265,7 +264,7 @@ Yielded.prototype[define]({
 // - utils
 
 function detachCb(args,yd){
-  if(yd[listeners].delete(args)) yd[count].value--;
+  if(yd[listeners].delete(args) && yd[count]) yd[count].accept();
 }
 
 function getYielded(obj){
@@ -286,6 +285,28 @@ function isYieldedFunc(yd){
 
 function isResolverFunc(res){
   return res && res[isResolver];
+}
+
+class ListenersGetter extends Getter{
+
+  constructor(yd){
+    super();
+    this[yielded] = yd;
+  }
+
+  get value(){
+    return this[yielded][listeners].size;
+  }
+
+  frozen(){
+    return Resolver.after(this[yielded]);
+  }
+
+  touched(){
+    this[yielded][count] = this[yielded][count] || new Resolver();
+    return this[yielded][count].yielded;
+  }
+
 }
 
 // Hybrid
@@ -358,6 +379,16 @@ function all(it){
 
   if(!--ctx.remaining) res.accept(ctx.result);
   return res.yielded;
+}
+
+function after(yd){
+  var res;
+
+  yd = Yielded.get(yd);
+  if(yd[yielded]) return yd[yielded];
+  res = new Resolver();
+  yd.listen(res.accept,[],res);
+  return yd[yielded] = res.yielded;
 }
 
 function raceIt(ctx,res,i){
