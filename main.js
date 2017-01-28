@@ -230,7 +230,7 @@ Yielded.prototype[define]({
     if(this[count]){
       c = this[count];
       delete this[count];
-      c.resolve();
+      c.accept();
     }
 
     return d;
@@ -276,7 +276,7 @@ function detachCb(args,yd){
   if(yd[listeners].delete(args) && yd[count]){
     c = yd[count];
     delete yd[count];
-    c.resolve();
+    c.accept();
   }
 }
 
