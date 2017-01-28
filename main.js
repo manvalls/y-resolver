@@ -217,7 +217,8 @@ Yielded.prototype[define]({
   },
 
   listen: function(){
-    var d = new Detacher(detachCb,[arguments,this]);
+    var d = new Detacher(detachCb,[arguments,this]),
+        c;
 
     if(this[done]){
       callCb(arguments,this);
@@ -225,7 +226,13 @@ Yielded.prototype[define]({
     }
 
     this[listeners].add(arguments);
-    if(this[count]) this[count].resolve();
+
+    if(this[count]){
+      c = this[count];
+      delete this[count];
+      c.resolve();
+    }
+
     return d;
   },
 
@@ -264,7 +271,13 @@ Yielded.prototype[define]({
 // - utils
 
 function detachCb(args,yd){
-  if(yd[listeners].delete(args) && yd[count]) yd[count].accept();
+  var c;
+
+  if(yd[listeners].delete(args) && yd[count]){
+    c = yd[count];
+    delete yd[count];
+    c.resolve();
+  }
 }
 
 function getYielded(obj){
