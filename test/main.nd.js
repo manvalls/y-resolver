@@ -176,7 +176,7 @@ test('Basic',function(){
   });
 
   test('Reject',function(){
-    var res = new Resolver(),
+    var res = new Hybrid(),
         obj = {};
 
     listenRejected(res.yielded,obj);
@@ -192,7 +192,7 @@ test('Basic',function(){
 
   test('Bind',function(){
     var res = new Hybrid(),
-        res2 = new Resolver(),
+        res2 = new Hybrid(),
         yd = res2.yielded,
         obj = {};
 
@@ -267,8 +267,8 @@ test('Resolver.reject()',function(){
 });
 
 test('Resolver.race()',function(){
-  var r1 = new Resolver(),
-      r2 = new Resolver(),
+  var r1 = new Hybrid(),
+      r2 = new Hybrid(),
       y1 = r1.yielded,
       y2 = r2.yielded,
       race = Resolver.race([y1,y2]),
@@ -290,8 +290,8 @@ test('Resolver.race()',function(){
 });
 
 test('Resolver.all()',function(){
-  var r1 = new Resolver(),
-      r2 = new Resolver(),
+  var r1 = new Hybrid(),
+      r2 = new Hybrid(),
       y1 = r1.yielded,
       y2 = r2.yielded,
       all = Resolver.all([y1,y2]),
@@ -303,8 +303,8 @@ test('Resolver.all()',function(){
   r1.accept(obj1);
   assert.deepEqual(all.value,[obj1,obj2]);
 
-  r1 = new Resolver();
-  r2 = new Resolver();
+  r1 = new Hybrid();
+  r2 = new Hybrid();
   y1 = r1.yielded;
   y2 = r2.yielded;
   all = Resolver.all([y1,y2]);
@@ -313,7 +313,7 @@ test('Resolver.all()',function(){
   r1.reject(obj1);
   assert.strictEqual(all.error,obj1);
 
-  r2 = new Resolver();
+  r2 = new Hybrid();
   y1 = Resolver.accept('foo');
   y2 = r2.yielded;
   all = Resolver.all([y1,y2]);
@@ -327,8 +327,8 @@ test('Resolver.all()',function(){
 test('proto',function*(){
 
   test('Array',function(){
-    var r1 = new Resolver(),
-        r2 = new Resolver(),
+    var r1 = new Hybrid(),
+        r2 = new Hybrid(),
         y1 = r1.yielded,
         y2 = r2.yielded,
         all = Yielded.get([y1,y2]),
@@ -340,8 +340,8 @@ test('proto',function*(){
     r1.accept(obj1);
     assert.deepEqual(all.value,[obj1,obj2]);
 
-    r1 = new Resolver();
-    r2 = new Resolver();
+    r1 = new Hybrid();
+    r2 = new Hybrid();
     y1 = r1.yielded;
     y2 = r2.yielded;
     all = Yielded.get([y1,y2]);
@@ -352,7 +352,7 @@ test('proto',function*(){
     assert.strictEqual(all.error.errors[0],obj1);
     assert.strictEqual(all.error.values[1],'foo');
 
-    r2 = new Resolver();
+    r2 = new Hybrid();
     y1 = Resolver.accept('foo');
     y2 = r2.yielded;
     all = Yielded.get([y1,y2]);
@@ -364,8 +364,8 @@ test('proto',function*(){
   });
 
   test('Object',function(){
-    var r1 = new Resolver(),
-        r2 = new Resolver(),
+    var r1 = new Hybrid(),
+        r2 = new Hybrid(),
         y1 = r1.yielded,
         y2 = r2.yielded,
         race = Yielded.get({
@@ -379,8 +379,8 @@ test('proto',function*(){
     r2.accept(obj);
     assert.strictEqual(race.value[2],obj);
 
-    r1 = new Resolver();
-    r2 = new Resolver();
+    r1 = new Hybrid();
+    r2 = new Hybrid();
     y1 = r1.yielded;
     y2 = r2.yielded;
 
@@ -496,8 +496,8 @@ test('Max stack size',function*(){
 });
 
 test('Delegation',function*(){
-  var r1 = new Resolver(),
-      r2 = new Resolver(),
+  var r1 = new Hybrid(),
+      r2 = new Hybrid(),
       r3 = new Resolver(r1,r2.yielded);
 
   r3.accept('foo');
@@ -509,7 +509,7 @@ test('Delegation',function*(){
 });
 
 test('yd.get',function*(){
-  var r = new Resolver(),
+  var r = new Hybrid(),
       d,g;
 
   r.accept(42);
@@ -519,7 +519,7 @@ test('yd.get',function*(){
   assert.strictEqual(r.yielded.get('rejected').value,false);
   assert.strictEqual(r.yielded.get('value').value,42);
 
-  r = new Resolver();
+  r = new Hybrid();
   d = new Detacher();
 
   g = r.yielded.get('done',d);

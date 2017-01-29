@@ -1,4 +1,6 @@
 var define = require('u-proto/define'),
+    Setter = require('y-setter'),
+    {Getter} = Setter,
 
     done = Symbol(),
     accepted = Symbol(),
@@ -21,56 +23,91 @@ var define = require('u-proto/define'),
     getter =      '4siciY0dau6kkit',
 
     stackSize = 0,
-    Setter,Getter,Detacher,bag;
+    Detacher,bag;
 
 // Resolver
 
-function Resolver(res,yd){
+class Resolver{
 
-  if(res){
-    this[resolver] = res;
-    this[yielded] = yd;
-  }else this[yielded] = new Yielded();
+  static get Yielded(){
+    return Yielded;
+  }
 
-}
+  static get Hybrid(){
+    return HybridYielded;
+  }
 
-/*/ exports /*/
+  static is(res){
+    return res && res[isResolver];
+  }
 
-module.exports = Resolver;
-Resolver.Yielded = Yielded;
-Resolver.Hybrid = HybridYielded;
+  static accept(v,doNotThrow){
+    var resolver = new Resolver();
 
-Yielded.get = getYielded;
-Yielded.is = isYieldedFunc;
-Yielded.getter = getter;
+    resolver.accept(v,doNotThrow);
+    return resolver.yielded;
+  }
 
-Resolver.is = isResolverFunc;
-Resolver.accept = accept;
-Resolver.reject = reject;
-Resolver.race = race;
-Resolver.all = all;
-Resolver.after = after;
+  static reject(e,doNotThrow){
+    var resolver = new Resolver();
 
-Resolver.defer = require('./Resolver/defer');
+    resolver.reject(e,doNotThrow);
+    return resolver.yielded;
+  }
 
-/*/ imports /*/
+  static race(it){
+    var res = new Resolver(),
+        yd;
 
-require('./proto/Array.js');
-require('./proto/Promise.js');
-require('./proto/stream/Readable.js');
-require('./proto/stream/Writable.js');
-require('./proto/Object.js');
-Setter = require('y-setter');
-Getter = Setter.Getter;
-Detacher = require('detacher');
+    for(yd of it) res.bind(Yielded.get(yd));
+    return res.yielded;
+  }
 
-/*/ ******* /*/
+  static all(it){
+    var res = new Resolver(),
+        ctx = {},
+        i = 0,
+        yd;
 
-Resolver.prototype[define](bag = {
+    ctx.remaining = 1;
+    ctx.result = [];
 
-  get yielded(){ return this[yielded]; },
+    for(yd of it){
+      ctx.remaining++;
+      Yielded.get(yd).listen(raceIt,[ctx,res,i]);
+      i++;
+    }
 
-  accept: function(data,doNotThrow){
+    if(!--ctx.remaining) res.accept(ctx.result);
+    return res.yielded;
+  }
+
+  static after(yd){
+    var res;
+
+    yd = Yielded.get(yd);
+    if(yd[yielded]) return yd[yielded];
+    res = new Resolver();
+    yd.listen(res.accept,[],res);
+    return yd[yielded] = res.yielded;
+  }
+
+  static defer(){
+    return require('./Resolver/defer').apply(this,arguments);
+  }
+
+  constructor(res,yd){
+
+    if(res){
+      this[resolver] = res;
+      this[yielded] = yd;
+    }else this[yielded] = new Yielded();
+
+  }
+
+  get yielded(){ return this[yielded]; }
+
+  accept(data,doNotThrow){
     var yd,ls,args,d;
 
     if(this[resolver]) return this[resolver].accept(data);
@@ -92,9 +129,9 @@ Resolver.prototype[define](bag = {
     for(d of yd[col]) detach(d);
     yd[col].clear();
 
-  },
+  }
 
-  reject: function(e,doNotThrow){
+  reject(e,doNotThrow){
     var yd,ls,args;
 
     if(this[resolver]) return this[resolver].reject(e,doNotThrow);
@@ -117,15 +154,205 @@ Resolver.prototype[define](bag = {
     for(d of yd[col]) detach(d);
     yd[col].clear();
 
-  },
+  }
 
-  bind: require('./Resolver/bind.js'),
-  [isResolver]: true,
-  ['3asKNsYzcdGduft']: 52
+  bind(){
+    require('./Resolver/bind.js').apply(this, arguments);
+  }
 
-});
+  get [isResolver](){ return true; }
+  get ['3asKNsYzcdGduft'](){ return 52; }
 
-// - utils
+}
+
+class Yielded{
+
+  static is(yd){
+    return yd && yd[isYielded];
+  }
+
+  static get(obj){
+
+    while(!(obj && obj[isYielded])){
+      if(!obj) return Resolver.accept(obj);
+
+      if(obj[getter]) obj = obj[getter]();
+      else return Resolver.accept(obj);
+    }
+
+    return obj;
+  }
+
+  static get getter(){
+    return getter;
+  }
+
+  constructor(prop){
+
+    if(prop){
+      this[prop] = Object.create(Resolver.prototype);
+      this[prop][yielded] = this;
+    }
+
+    this[done] = false;
+    this[accepted] = false;
+    this[rejected] = false;
+    this[throws] = true;
+
+    this[col] = new Set();
+    this[listeners] = new Set();
+
+  }
+
+  get throws(){
+    return this[throws];
+  }
+
+  set throws(value){
+    if(this[done]) return;
+    this[throws] = !!value;
+  }
+
+  get listeners(){
+    return new ListenersGetter(this);
+  }
+
+  get done(){
+    return this[done];
+  }
+
+  get accepted(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
+    return this[accepted];
+  }
+
+  get rejected(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
+    return this[rejected];
+  }
+
+  get value(){
+    return this[value];
+  }
+
+  get error(){
+    if(this[timeout] != null) clearTimeout(this[timeout]);
+    return this[error];
+  }
+
+  listen(){
+    var d = new Detacher(detachCb,[arguments,this]),
+        c;
+
+    if(this[done]){
+      callCb(arguments,this);
+      return d;
+    }
+
+    this[listeners].add(arguments);
+
+    if(this[count]){
+      c = this[count];
+      delete this[count];
+      c.accept();
+    }
+
+    return d;
+  }
+
+  add(){
+    var d;
+
+    if(this[done]){
+      for(d of arguments) detach(d);
+      return;
+    }
+
+    for(d of arguments){
+      this[col].add(d);
+
+      if(Resolver.Yielded.is(d)) d.listen(this[col].delete,[d],this[col]);
+      else if(Resolver.is(d)) d.yielded.listen(this[col].delete,[d],this[col]);
+      else if(Getter.is(d)) d.frozen().listen(this[col].delete,[d],this[col]);
+      else if(Setter.is(d)) d.getter.frozen().listen(this[col].delete,[d],this[col]);
+    }
+
+  }
+
+  remove(){
+    var d;
+    for(d of arguments) this[col].delete(d);
+  }
+
+  call(){
+    return require('./Yielded/call.js').apply(this,arguments);
+  }
+
+  then(){
+    return require('./Yielded/then.js').apply(this,arguments);
+  }
+
+  get(){
+    return require('./Yielded/get.js').apply(this,arguments);
+  }
+
+  get [isYielded](){ return true; }
+
+  get ['3asKNsYzcdGduft'](){ return 51; }
+
+}
+
+class HybridYielded extends Yielded{
+
+  constructor(res){
+    super();
+    res = res || new Resolver();
+    this[resolver] = res;
+    this[yielded] = res.yielded;
+  }
+
+  get listeners(){ return this[yielded].listeners; }
+  get done(){ return this[yielded].done; }
+  get accepted(){ return this[yielded].accepted; }
+  get rejected(){ return this[yielded].rejected; }
+  get value(){ return this[yielded].value; }
+  get error(){ return this[yielded].error; }
+
+  listen(cb,args,thisArg){
+    return this[yielded].listen(cb,args || [],thisArg || this);
+  }
+
+  get yielded(){ return this[yielded]; }
+
+  accept(data,doNotThrow){ return this[resolver].accept(data); }
+  reject(e,doNotThrow){ return this[resolver].reject(e,doNotThrow); }
+  bind(){ require('./Resolver/bind.js').apply(this, arguments); }
+  get [isResolver](){ return true; }
+  get ['3asKNsYzcdGduft'](){ return 53; }
+
+}
+
+class ListenersGetter extends Getter{
+
+  constructor(yd){
+    super();
+    this[yielded] = yd;
+  }
+
+  get value(){
+    return this[yielded][listeners].size;
+  }
+
+  frozen(){
+    return Resolver.after(this[yielded]);
+  }
+
+  touched(){
+    this[yielded][count] = this[yielded][count] || new Resolver();
+    return this[yielded][count].yielded;
+  }
+
+}
 
 function callCb(args,yd){
   var cb = args[0],
@@ -164,112 +391,6 @@ function throwError(e){
   throw e;
 }
 
-// Yielded
-
-function Yielded(prop){
-
-  if(this[listeners]) return;
-
-  if(prop){
-    this[prop] = Object.create(Resolver.prototype);
-    this[prop][yielded] = this;
-  }
-
-  this[done] = false;
-  this[accepted] = false;
-  this[rejected] = false;
-  this[throws] = true;
-
-  this[col] = new Set();
-  this[listeners] = new Set();
-
-}
-
-Yielded.prototype[define]({
-
-  get throws(){
-    return this[throws];
-  },
-
-  set throws(value){
-    if(this[done]) return;
-    this[throws] = !!value;
-  },
-
-  get listeners(){ return new ListenersGetter(this); },
-
-  get done(){ return this[done]; },
-
-  get accepted(){
-    if(this[timeout] != null) clearTimeout(this[timeout]);
-    return this[accepted];
-  },
-
-  get rejected(){
-    if(this[timeout] != null) clearTimeout(this[timeout]);
-    return this[rejected];
-  },
-
-  get value(){ return this[value]; },
-  get error(){
-    if(this[timeout] != null) clearTimeout(this[timeout]);
-    return this[error];
-  },
-
-  listen: function(){
-    var d = new Detacher(detachCb,[arguments,this]),
-        c;
-
-    if(this[done]){
-      callCb(arguments,this);
-      return d;
-    }
-
-    this[listeners].add(arguments);
-
-    if(this[count]){
-      c = this[count];
-      delete this[count];
-      c.accept();
-    }
-
-    return d;
-  },
-
-  add: function(){
-    var d;
-
-    if(this[done]){
-      for(d of arguments) detach(d);
-      return;
-    }
-
-    for(d of arguments){
-      this[col].add(d);
-
-      if(Resolver.Yielded.is(d)) d.listen(this[col].delete,[d],this[col]);
-      else if(Resolver.is(d)) d.yielded.listen(this[col].delete,[d],this[col]);
-      else if(Setter.Getter.is(d)) d.frozen().listen(this[col].delete,[d],this[col]);
-      else if(Setter.is(d)) d.getter.frozen().listen(this[col].delete,[d],this[col]);
-    }
-
-  },
-
-  remove: function(){
-    var d;
-    for(d of arguments) this[col].delete(d);
-  },
-
-  call: require('./Yielded/call.js'),
-  then: require('./Yielded/then.js'),
-  get: require('./Yielded/get.js'),
-  [isYielded]: true,
-  ['3asKNsYzcdGduft']: 51
-
-});
-
-// - utils
-
 function detachCb(args,yd){
   var c;
 
@@ -280,130 +401,6 @@ function detachCb(args,yd){
   }
 }
 
-function getYielded(obj){
-
-  while(!(obj && obj[isYielded])){
-    if(!obj) return accept(obj);
-
-    if(obj[getter]) obj = obj[getter]();
-    else return accept(obj);
-  }
-
-  return obj;
-}
-
-function isYieldedFunc(yd){
-  return yd && yd[isYielded];
-}
-
-function isResolverFunc(res){
-  return res && res[isResolver];
-}
-
-class ListenersGetter extends Getter{
-
-  constructor(yd){
-    super();
-    this[yielded] = yd;
-  }
-
-  get value(){
-    return this[yielded][listeners].size;
-  }
-
-  frozen(){
-    return Resolver.after(this[yielded]);
-  }
-
-  touched(){
-    this[yielded][count] = this[yielded][count] || new Resolver();
-    return this[yielded][count].yielded;
-  }
-
-}
-
-// Hybrid
-
-function HybridYielded(res){
-  res = res || new Resolver();
-  this[resolver] = res;
-  this[yielded] = res.yielded;
-}
-
-HybridYielded.prototype = Object.create(Yielded.prototype);
-HybridYielded.prototype[define]('constructor',HybridYielded);
-HybridYielded.prototype[define]('3asKNsYzcdGduft',53);
-HybridYielded.prototype[define](bag);
-
-HybridYielded.prototype[define]({
-
-  get listeners(){ return this[yielded].listeners; },
-  get done(){ return this[yielded].done; },
-  get accepted(){ return this[yielded].accepted; },
-  get rejected(){ return this[yielded].rejected; },
-  get value(){ return this[yielded].value; },
-  get error(){ return this[yielded].error; },
-  listen: function(func,args,thisArg){
-    args = args || [];
-    thisArg = thisArg || this;
-    return this[yielded].listen(func,args,thisArg);
-  }
-
-});
-
-// utils
-
-function accept(v,doNotThrow){
-  var resolver = new Resolver();
-
-  resolver.accept(v,doNotThrow);
-  return resolver.yielded;
-}
-
-function reject(e,doNotThrow){
-  var resolver = new Resolver();
-
-  resolver.reject(e,doNotThrow);
-  return resolver.yielded;
-}
-
-function race(it){
-  var res = new Resolver(),
-      yd;
-
-  for(yd of it) res.bind(getYielded(yd));
-  return res.yielded;
-}
-
-function all(it){
-  var res = new Resolver(),
-      ctx = {},
-      i = 0,
-      yd;
-
-  ctx.remaining = 1;
-  ctx.result = [];
-
-  for(yd of it){
-    ctx.remaining++;
-    getYielded(yd).listen(raceIt,[ctx,res,i]);
-    i++;
-  }
-
-  if(!--ctx.remaining) res.accept(ctx.result);
-  return res.yielded;
-}
-
-function after(yd){
-  var res;
-
-  yd = Yielded.get(yd);
-  if(yd[yielded]) return yd[yielded];
-  res = new Resolver();
-  yd.listen(res.accept,[],res);
-  return yd[yielded] = res.yielded;
-}
-
 function raceIt(ctx,res,i){
 
   if(this.accepted){
@@ -412,3 +409,16 @@ function raceIt(ctx,res,i){
   }else res.reject(this.error);
 
 }
+
+/*/ exports /*/
+
+module.exports = Resolver;
+
+/*/ imports /*/
+
+require('./proto/Array.js');
+require('./proto/Promise.js');
+require('./proto/stream/Readable.js');
+require('./proto/stream/Writable.js');
+require('./proto/Object.js');
+Detacher = require('detacher');
