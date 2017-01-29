@@ -21,7 +21,7 @@ var define = require('u-proto/define'),
     getter =      '4siciY0dau6kkit',
 
     stackSize = 0,
-    Setter,Detacher,bag;
+    Setter,Getter,Detacher,bag;
 
 // Resolver
 
