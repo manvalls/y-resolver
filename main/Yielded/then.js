@@ -1,5 +1,5 @@
 var tick = require('y-timers/tick'),
-    Resolver = require('../main.js');
+    Resolver = require('../../main');
 
 function then(onFulfilled,onRejected){
   var r = new Resolver();
@@ -23,49 +23,14 @@ function handleThen(onFulfilled,onRejected,r){
 }
 
 function call(f,arg,r,yd){
-  var ignore = false,
-      v,then;
+  var v;
 
   try{
-
     v = f(arg);
-    if(v == r.yielded) return r.reject(new TypeError(),!yd.throws);
-
-    try{
-
-      if(v && (
-          typeof v == 'object' ||
-          typeof v == 'function'
-        ) && typeof (then = v.then) == 'function'){
-
-        then.call(v,function(value){
-
-          if(ignore) return;
-          ignore = true;
-
-          call(PT,value,r,yd);
-
-        },function(error){
-
-          if(ignore) return;
-          ignore = true;
-
-          r.reject(error,!yd.throws);
-
-        });
-
-        return;
-      }
-
-    }catch(e){ return ignore ? null : r.reject(e,!yd.throws); }
-
     r.accept(v,!yd.throws);
-
   }catch(e){ r.reject(e,!yd.throws); }
 
 }
-
-function PT(v){ return v; }
 
 /*/ exports /*/
 

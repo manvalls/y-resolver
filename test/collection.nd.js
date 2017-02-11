@@ -1,4 +1,4 @@
-var Resolver = require('../main.js'),
+var Resolver = require('../main'),
     Setter = require('y-setter'),
     t = require('u-test'),
     assert = require('assert');

@@ -2,16 +2,16 @@
   "name": "y-resolver",
   "version": "9.8.4",
   "description": "A backwards compatible extension to the Promises/A+ spec",
-  "main": "main.js",
+  "main": "main/index.js",
   "dependencies": {
-    "detacher": "^2.0.7",
+    "detacher": "^2.0.8",
     "u-proto": "^7.1.4",
-    "y-setter": "^7.2.0",
+    "y-setter": "^7.3.3",
     "y-timers": "^1.1.6"
   },
   "devDependencies": {
     "promises-aplus-tests": "^2.1.2",
-    "u-test": "^3.8.10",
+    "u-test": "^3.8.11",
     "y-callback": "^1.2.4"
   },
   "scripts": {

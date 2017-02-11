@@ -1,4 +1,4 @@
-var Resolver = require('../main.js'),
+var Resolver = require('../main'),
     promisesAplusTests = require("promises-aplus-tests"),
     adapter = {};
 

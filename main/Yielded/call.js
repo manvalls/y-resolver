@@ -1,4 +1,6 @@
-var Resolver = require('../main.js');
+var Resolver = require('../../main');
+
+// TODO: implement this using Yielded subclasses
 
 module.exports = function(){
   var resolver = new Resolver();

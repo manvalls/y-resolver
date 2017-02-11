@@ -1,6 +1,6 @@
 var define = require('u-proto/define'),
 
-    Resolver = require('../main.js'),
+    Resolver = require('../../main'),
     fromReadableStream = require('./stream/Readable.js'),
     fromWritableStream = require('./stream/Writable.js'),
     fromPromise = require('./Promise.js'),
@@ -9,18 +9,25 @@ var define = require('u-proto/define'),
     getYd = Resolver.Yielded.get,
     Detacher,race;
 
-module.exports = function(){
-  var c = new Detacher(),
-      keys,ctx,i,j,res,errors;
+// TODO: add and remove listeners on-demand
 
-  if(typeof this.toPromise == 'function') return fromPromise.call(this.toPromise());
-  if(typeof this.then == 'function') return fromPromise.call(this);
-  if(typeof this.pipe == 'function') return fromReadableStream.call(this);
-  if(typeof this.end == 'function') return fromWritableStream.call(this);
-  if(this.constructor != Object) return Resolver.accept(this);
+module.exports = function(doNotThrow){
+  var c = new Detacher(),
+      keys,ctx,i,j,res,errors,then;
+
+  if(typeof this.toPromise == 'function') return fromPromise.call(this.toPromise(), doNotThrow);
+
+  try{
+    then = this.then;
+    if(typeof then == 'function') return fromPromise.withThen(this, then, doNotThrow);
+  }catch(e){ return Resolver.reject(e, doNotThrow); }
+
+  if(typeof this.pipe == 'function') return fromReadableStream.call(this, doNotThrow);
+  if(typeof this.end == 'function') return fromWritableStream.call(this, doNotThrow);
+  if(this.constructor != Object) return Resolver.accept(this, doNotThrow);
 
   keys = Object.keys(this);
-  if(!keys.length) return Resolver.accept({});
+  if(!keys.length) return Resolver.accept({}, doNotThrow);
 
   res = new Resolver();
   errors = {};
@@ -32,19 +39,19 @@ module.exports = function(){
   for(j = 0;j < keys.length;j++){
     i = keys[j];
     c.add(
-      getYd(this[i]).listen(race,[res,errors,c,ctx,i])
+      getYd(this[i],doNotThrow).listen(race,[res,errors,c,ctx,i,doNotThrow])
     );
   }
 
   return res.yielded;
 };
 
-function race(res,errors,c,ctx,i){
+function race(res,errors,c,ctx,i,doNotThrow){
   var error;
 
   if(this.accepted){
     c.detach();
-    res.accept({[i]: this.value});
+    res.accept({[i]: this.value},doNotThrow);
   }else{
     if(!ctx.firstError) ctx.firstError = this.error;
     errors[i] = this.error;
@@ -53,7 +60,7 @@ function race(res,errors,c,ctx,i){
       error.stack = ctx.firstError.stack;
       error.errors = errors;
 
-      res.reject(error);
+      res.reject(error,doNotThrow);
     }
   }
 

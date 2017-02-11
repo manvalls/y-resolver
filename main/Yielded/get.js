@@ -1,5 +1,7 @@
 var Setter = require('y-setter');
 
+// TODO: implement this using Getter subclasses
+
 module.exports = function(prop,td){
   var setter = new Setter(),
       d;

@@ -1,4 +1,4 @@
-var Resolver = require('../main.js'),
+var Resolver = require('../main'),
     test = require('u-test'),
     Yielded = Resolver.Yielded,
     Hybrid = Resolver.Hybrid,
@@ -130,6 +130,8 @@ function isRejected(yd){
   test('The Yielded is rejected',function(){
     assert(yd.rejected);
   });
+
+  yd.error; // Prevent throwing
 
 }
 

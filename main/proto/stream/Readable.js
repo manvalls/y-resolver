@@ -1,19 +1,23 @@
 var define = require('u-proto/define'),
-    Resolver = require('../../main.js'),
+    Resolver = require('../../../main'),
 
     resolver = Symbol(),
     parts = Symbol(),
     str = Symbol(),
     size = Symbol(),
+    dnt = Symbol(),
 
     getter = Resolver.Yielded.getter,
     rq = require;
 
-module.exports = function(){
+// TODO: add listeners on-demand
+
+module.exports = function(doNotThrow){
 
   if(!this[resolver]){
-    this[parts] = [];
     this[resolver] = new Resolver();
+    this[dnt] = doNotThrow;
+    this[parts] = [];
     this[size] = 0;
 
     this.on('data',onData);
@@ -42,13 +46,13 @@ function onData(chunk){
 function onceError(e){
   this.removeListener('end',onceEnd);
   this.removeListener('data',onData);
-  this[resolver].reject(e);
+  this[resolver].reject(e,this[dnt]);
 }
 
 function onceEnd(){
   this.removeListener('error',onceError);
   this.removeListener('data',onData);
-  this[resolver].accept(this[str] == null ? concat(this[parts]) : this[str]);
+  this[resolver].accept(this[str] == null ? concat(this[parts]) : this[str],this[dnt]);
 }
 
 if(global.process && !rq('stream').Readable.prototype.hasOwnProperty(getter))

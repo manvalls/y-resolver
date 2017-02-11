@@ -1,4 +1,5 @@
-var Detacher = require('detacher');
+var Detacher = require('detacher'),
+    Resolver = require('../main');
 
 function resolve(res,yd,d){
   if(yd.accepted) res.accept(yd.value);
@@ -8,6 +9,8 @@ function resolve(res,yd,d){
 function bind(yd){
   var d = new Detacher();
 
+  yd = Resolver.when(yd);
+  
   d.add(
     yd.listen(resolve,[this,yd,d])
   );
