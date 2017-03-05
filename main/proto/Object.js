@@ -12,8 +12,7 @@ var define = require('u-proto/define'),
 // TODO: add and remove listeners on-demand
 
 module.exports = function(doNotThrow){
-  var c = new Detacher(),
-      keys,ctx,i,j,res,errors,then;
+  var c,keys,ctx,i,j,res,errors,then;
 
   if(typeof this.toPromise == 'function') return fromPromise.call(this.toPromise(), doNotThrow);
 
@@ -29,6 +28,8 @@ module.exports = function(doNotThrow){
   keys = Object.keys(this);
   if(!keys.length) return Resolver.accept({}, doNotThrow);
 
+  Detacher = Detacher || require('detacher');
+  c = new Detacher();
   res = new Resolver();
   errors = {};
 
@@ -68,4 +69,3 @@ function race(res,errors,c,ctx,i,doNotThrow){
 
 if(!Object.prototype.hasOwnProperty(getter))
 Object.prototype[define](getter,module.exports,{writable: true});
-Detacher = require('detacher');
