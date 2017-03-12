@@ -250,7 +250,7 @@ test('Basic',function(){
 
 test('Resolver.accept()',function(){
   var obj = {},
-      yd = Resolver.accept(obj);
+      yd = Resolver.resolve(obj);
 
   isYielded(yd);
   isAccepted(yd);
@@ -465,6 +465,29 @@ test('proto',function*(){
   });
 
   fs.unlinkSync('foo');
+
+});
+
+test('try, catch, finally',function*(){
+  var error, error2, value;
+
+  value = yield Resolver.try(() => {
+    throw 'asd';
+  }).catch((e) => {
+    error = e;
+    throw e;
+  }).finally(() => {
+    throw 'foo';
+  }).catch((e) => {
+    error2 = e;
+    return 'bar';
+  }).finally(() => {
+    return 'foo';
+  });
+
+  assert.strictEqual(value, 'bar');
+  assert.strictEqual(error, 'asd');
+  assert.strictEqual(error2, 'foo');
 
 });
 

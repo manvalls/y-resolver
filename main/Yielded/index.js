@@ -129,7 +129,26 @@ class Yielded{
 
   call(){ return require('./call').apply(this, arguments); }
   then(){ return require('./then').apply(this, arguments); }
+  catch(){ return this.then(null, ...arguments); }
   get(){ return require('./get').apply(this, arguments); }
+
+  finally(cb){
+    var errored = false,
+        value, error;
+
+    return this.then(v => {
+      value = v;
+      return cb();
+    }, e => {
+      errored = true;
+      error = e;
+      return cb();
+    }).then(() => {
+      if(errored) throw error;
+      return value;
+    });
+
+  }
 
   // Useful methods and getters
 

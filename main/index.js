@@ -47,6 +47,13 @@ class Resolver{
     return Resolver.accept(yd);
   }
 
+  static try(cb){
+    var res = new Resolver();
+    try{ res.accept(cb()); }
+    catch(e){ res.reject(e); }
+    return res.yielded;
+  }
+
   static race(){ return require('./race').apply(this,arguments); }
   static all(){ return require('./all').apply(this,arguments); }
   static after(){ return require('./after').apply(this,arguments); }
