@@ -79,18 +79,22 @@ class Yielded{
   flush(){
     var ls = this[listeners],
         col = this[collection],
-        args, d;
+        args, d, c;
 
     if(!this.done) return;
-
-    for(args of ls){
-      detachCb(args,this);
-      callCb(args,this);
-    }
+    this[listeners] = new Set();
+    for(args of ls) callCb(args,this);
 
     // FIXME: clean listeners from yd.add()
     for(d of col) detach(d);
     col.clear();
+
+    if(this[count]){
+      c = this[count];
+      delete this[count];
+      c.accept();
+    }
+
   }
 
   // Detacher logic
