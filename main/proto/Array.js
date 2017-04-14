@@ -34,9 +34,9 @@ function run(res,arr,errors,ctx,i,doNotThrow){
 
   if(!--ctx.remaining){
 
-    if(ctx.lastError){
-      error = new Error(ctx.lastError.message);
-      error.stack = ctx.lastError.stack;
+    if('lastError' in ctx){
+      error = new Error((ctx.lastError || {}).message);
+      error.stack = (ctx.lastError || {}).stack;
 
       error.errors = errors;
       error.values = arr;
