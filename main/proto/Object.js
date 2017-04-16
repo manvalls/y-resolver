@@ -54,11 +54,11 @@ function race(res,errors,c,ctx,i,doNotThrow){
     c.detach();
     res.accept({[i]: this.value},doNotThrow);
   }else{
-    if(!ctx.firstError) ctx.firstError = this.error;
+    if(!('firstError' in ctx)) ctx.firstError = this.error;
     errors[i] = this.error;
     if(!--ctx.remaining){
-      error = new Error(ctx.firstError.message);
-      error.stack = ctx.firstError.stack;
+      error = new Error((ctx.firstError || {}).message || ctx.firstError);
+      error.stack = (ctx.firstError || {}).stack;
       error.errors = errors;
 
       res.reject(error,doNotThrow);
