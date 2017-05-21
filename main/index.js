@@ -130,6 +130,8 @@ class ResolvedYielded extends Yielded{
     if(prop){
       this[prop] = new Resolver();
       this[prop][yielded] = this;
+      this[accepted] = false;
+      this[rejected] = false;
     }
 
   }
