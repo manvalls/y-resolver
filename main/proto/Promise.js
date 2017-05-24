@@ -1,6 +1,7 @@
 var define = require('u-proto/define'),
     Resolver = require('../../main'),
-    getter = Resolver.Yielded.getter,
+    Yielded = Resolver.Yielded,
+    getter = Yielded.getter,
     yielded = Symbol();
 
 // TODO: add listeners on-demand
@@ -13,6 +14,7 @@ function fromPromise(doNotThrow){
 fromPromise.withThen = function(that, then, doNotThrow){
   var resolver;
 
+  if(Yielded.is(that)) return that;
   if(that[yielded]) return that[yielded];
   resolver = new Resolver();
 
