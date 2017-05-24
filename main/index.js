@@ -172,6 +172,11 @@ class HybridYielded extends Yielded{
   get [isResolver](){ return true; }
   get ['3asKNsYzcdGduft'](){ return 53; }
 
+  // Deferred compat
+
+  resolve(){ return this.accept.apply(this,arguments); }
+  get promise(){ return this.yielded; }
+
 }
 
 // - utils
