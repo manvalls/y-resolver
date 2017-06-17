@@ -6,6 +6,7 @@ var Setter = require('y-setter'),
     count = Symbol(),
     listeners = Symbol(),
     collection = Symbol(),
+    detacher = Symbol(),
 
     isYielded =   '2Alqg4pLDZMZl8Y',
     getter =      '4siciY0dau6kkit',
@@ -39,6 +40,7 @@ class Yielded{
     this[throws] = true;
     this[collection] = new Set();
     this[listeners] = new Set();
+    this[detacher] = new WeakMap();
   }
 
   // Default behaviour
@@ -85,8 +87,18 @@ class Yielded{
     this[listeners] = new Set();
     for(args of ls) callCb(args,this);
 
-    // FIXME: clean listeners from yd.add()
-    for(d of col) detach(d);
+    for(d of col){
+
+      if(this[detacher].has(d)){
+        let det = this[detacher].get(d);
+        this[detacher].delete(d);
+        det.detach();
+      }
+
+      detach(d);
+      
+    }
+
     col.clear();
 
     if(this[count]){
@@ -109,14 +121,13 @@ class Yielded{
     }
 
     for(d of arguments){
+      if(col.has(d)) continue;
       col.add(d);
 
-      // IDEA: make Getters and Yieldeds smarter to avoid listeners
-
-      if(Yielded.is(d)) d.listen(col.delete,[d],col);
-      else if(d && Yielded.is(d.yielded)) d.yielded.listen(col.delete,[d],col);
-      else if(Getter.is(d)) d.frozen().listen(col.delete,[d],col);
-      else if(Setter.is(d)) d.getter.frozen().listen(col.delete,[d],col);
+      if(Yielded.is(d)) this[detacher].set(d, d.listen(col.delete,[d],col));
+      else if(d && Yielded.is(d.yielded)) this[detacher].set(d, d.yielded.listen(col.delete,[d],col));
+      else if(Getter.is(d)) this[detacher].set(d, d.frozen().listen(col.delete,[d],col));
+      else if(Setter.is(d)) this[detacher].set(d, d.getter.frozen().listen(col.delete,[d],col));
     }
 
   }
@@ -125,8 +136,16 @@ class Yielded{
     var col = this[collection],
         d;
 
-    // FIXME: clean listeners from yd.add()
-    for(d of arguments) col.delete(d);
+    for(d of arguments){
+      col.delete(d);
+
+      if(this[detacher].has(d)){
+        let det = this[detacher].get(d);
+        this[detacher].delete(d);
+        det.detach();
+      }
+
+    }
   }
 
   // Extra methods
@@ -183,7 +202,7 @@ class ListenersGetter extends Getter{
   }
 
   get value(){
-    return this[yielded][listeners].size;
+    return this[yielded][listeners].size + this[yielded][collection].size;
   }
 
   frozen(){

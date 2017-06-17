@@ -5,14 +5,14 @@
   "main": "main/index.js",
   "dependencies": {
     "detacher": "^2.0.10",
-    "u-proto": "^7.1.5",
-    "y-setter": "^7.4.0",
-    "y-timers": "^1.1.7"
+    "u-proto": "^7.1.8",
+    "y-setter": "^7.11.1",
+    "y-timers": "^1.1.10"
   },
   "devDependencies": {
     "promises-aplus-tests": "^2.1.2",
     "u-test": "^3.8.11",
-    "y-callback": "^1.2.4"
+    "y-callback": "^1.2.5"
   },
   "scripts": {
     "test": "u-test"
