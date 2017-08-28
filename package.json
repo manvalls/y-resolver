@@ -1,6 +1,6 @@
 {
   "name": "y-resolver",
-  "version": "11.0.0",
+  "version": "11.0.1",
   "description": "A backwards compatible extension to the Promises/A+ spec",
   "main": "main/index.js",
   "dependencies": {
