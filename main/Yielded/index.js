@@ -96,7 +96,7 @@ class Yielded{
       }
 
       detach(d);
-      
+
     }
 
     col.clear();
@@ -190,7 +190,7 @@ class Yielded{
 
   get [isYielded](){ return true; }
 
-  get ['3asKNsYzcdGduft'](){ return 51; }
+  get [Symbol.for('ebjs/label')](){ return 51; }
 
 }
 

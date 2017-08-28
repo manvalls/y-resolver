@@ -111,7 +111,7 @@ class Resolver{
 
   bind(){ return require('./bind').apply(this, arguments); }
   get [isResolver](){ return true; }
-  get ['3asKNsYzcdGduft'](){ return 52; }
+  get [Symbol.for('ebjs/label')](){ return 52; }
 
   // Deferred compat
 
@@ -170,7 +170,7 @@ class HybridYielded extends Yielded{
   reject(e,doNotThrow){ return this[resolver].reject(e,doNotThrow); }
   bind(){ require('./bind').apply(this, arguments); }
   get [isResolver](){ return true; }
-  get ['3asKNsYzcdGduft'](){ return 53; }
+  get [Symbol.for('ebjs/label')](){ return 53; }
 
   // Deferred compat
 
