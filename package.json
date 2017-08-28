@@ -6,7 +6,7 @@
   "dependencies": {
     "detacher": "^2.0.10",
     "u-proto": "^7.1.8",
-    "y-setter": "^7.11.1",
+    "y-setter": "^8.0.1",
     "y-timers": "^1.1.10"
   },
   "devDependencies": {
